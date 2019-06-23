@@ -1,8 +1,93 @@
 type User {
   id: ID! @id
-  name: String!
+  cpf: String! @unique
   email: String! @unique
+  phoneNumber: String!
   password: String!
+  whatsApp: String
+  fName: String
+  lName: String
+  siteRole: SiteRole! @default(value: USER)
+  raffles: [UserRaffle!]! @relation(name: "UserToRaffle", onDelete: CASCADE)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
+  orders: [Order!]! @relation(name: "UserToOrder", onDelete: CASCADE)
+}
+
+type Raffle {
+  id: ID! @id
+  size: Int!
+  drawDate: DateTime!
+  price: Float!
+  isPaid: Boolean! @default(value: false)
+  totalCost: Float!
+  orders: [Order!]! @relation(name: "RaffleToOrder", onDelete: CASCADE)
+  admins: [UserRaffle!] @relation(name: "RaffleToUser", onDelete: CASCADE)
+  prizes: [Prize!]! @relation(name: "PrizeToRaffle", onDelete: CASCADE)
+# siteOrder: SiteOrder! @relation(name: "RaffleToSite", onDelete: CASCADE)
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+}
+
+type Prize {
+  ID: ID! @id
+  prizeNumber: Int!
+  prize: String!
+  description: String
+  raffle: Raffle! @relation(name: "PrizeToRaffle", onDelete: SET_NULL)
+}
+
+type UserRaffle {
+  id: ID! @id
+  user: User! @relation(name: "UserToRaffle", onDelete: SET_NULL)
+  raffle: Raffle! @relation(name: "RaffleToUser", onDelete: SET_NULL)
+  raffleRole: RaffleRole!
+}
+
+type Order {
+  id: ID! @id
+  raffleNumber: Int!
+  paymentMethod: PaymentMethod!
+  buyer: User! @relation(name: "UserToOrder", onDelete: SET_NULL)
+  winner: [Winner!]! @relation(name: "OrderToWinner")
+  raffle: Raffle! @relation(name: "RaffleToOrder", onDelete: SET_NULL)
+  status: OrderStatus! @default(value: RESERVADO)
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+}
+
+type Winner {
+  id: ID! @id
+  drawNumber: Int!
+  order: Order! @relation(name: "OrderToWinner")
+}
+
+# type SiteOrder {
+# id: ID! @id
+# purchaseDate: DateTime! @createdAt
+# raffle: Raffle!
+#   @relation(link: INLINE, name: "RaffleToSite", onDelete: SET_NULL)
+# }
+
+enum SiteRole {
+  ADMIN
+  USER
+}
+
+enum RaffleRole {
+  ADMIN
+  VENDEDOR
+}
+
+enum PaymentMethod {
+  TRANSFERENCIA
+  DINHEIRO
+  PICPAY
+  MERCADOPAGO
+  PAYPAL
+}
+
+enum OrderStatus {
+  PAGO
+  RESERVADO
 }

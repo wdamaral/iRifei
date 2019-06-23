@@ -1,4 +1,4 @@
-# import UserOrderByInput from './generated/prisma.graphql'
+# import UserOrderByInput, OrderOrderByInput, RaffleOrderByInput from './generated/prisma.graphql'
 
 type Query {
   users(
@@ -9,13 +9,30 @@ type Query {
     orderBy: UserOrderByInput
   ): [User!]!
   me: User!
+  orders(query: String, first: Int, skip: Int, after: String): [Order!]!
+  myOrders(query: String, first: Int, skip: Int, after: String): [Order!]!
+  raffles(query: String, first: Int, skip: Int, after: String): [Raffle!]!
+  myRaffles(query: String, first: Int, skip: Int, after: String): [Raffle!]!
+  prizes: [Prize!]!
+  winners: [Winner!]!
 }
 
 type Mutation {
-  createUser(data: CreateUserInput!): AuthPayload!
   loginUser(data: LoginUserInput!): AuthPayload!
-  deleteUser: User!
+  createUser(data: CreateUserInput!): AuthPayload!
   updateUser(data: UpdateUserInput!): User!
+  deleteUser: User!
+  createOrder(data: CreateOrderInput): Order!
+  updateOrder(data: UpdateOrderInput): Order!
+  createRaffle(data: CreateRaffleInput): Raffle!
+  updateRaffle(data: UpdateRaffleInput): Raffle!
+  deleteRaffle: Raffle!
+  createPrize(data: CreatePrizeInput): Prize!
+  updatePrize(data: UpdatePrizeInput): Prize!
+  deletePrize: Prize!
+  createUserRaffle(data: CreateUserRaffleInput): UserRaffle!
+  updateUserRaffle(data: UpdateUserRaffle): UserRaffle!
+  deleteUserRaffle: UserRaffle!
 }
 
 # type Subscription {
@@ -26,30 +43,182 @@ type AuthPayload {
   user: User!
 }
 
-input CreateUserInput {
-  name: String!
-  email: String!
-  password: String!
-}
-
 input LoginUserInput {
   email: String!
   password: String!
 }
 
-input UpdateUserInput {
-  name: String
-  email: String
-  password: String
-}
-
 type User {
   id: ID!
-  name: String!
-  email: String
+  cpf: String!
+  email: String!
+  phoneNumber: String!
   password: String!
+  whatsApp: String
+  fName: String
+  lName: String
+  siteRole: SiteRole!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+input CreateUserInput {
+  cpf: String!
+  email: String!
+  password: String!
+  phoneNumber: String
+  whatsApp: String
+  fName: String
+  lName: String
+}
+
+input UpdateUserInput {
+  cpf: String
+  email: String
+  phoneNumber: String
+  password: String
+  whatsApp: String
+  fName: String
+  lName: String
+  siteRole: SiteRole
+}
+
+type Raffle {
+  id: ID!
+  size: Int!
   createdAt: String!
   updatedAt: String!
+  drawDate: String!
+  price: Float!
+  isPaid: Boolean!
+  totalCost: Float!
+  orders: [Order!]!
+  admins: [UserRaffle!]
+  prizes: [Prize!]!
+  siteOrder: SiteOrder!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type CreateRaffleInput {
+  size: Int!
+  drawDate: String!
+  price: Float!
+  admins: [UserRaffle!]
+  prizes: [Prize!]!
+}
+
+type UpdateRaffleInput {
+  size: Int
+  drawDate: String
+  price: Float
+  isPaid: Boolean
+  admins: [UserRaffle!]
+  prizes: [Prize!]
+  siteOrder: SiteOrder
+}
+
+type Prize {
+  ID: ID!
+  prizeNumber: Int!
+  prize: String!
+  description: String
+  raffle: Raffle!
+}
+
+type CreatePrizeInput {
+  prizeNumber: Int!
+  prize: String!
+  description: String
+}
+
+type UpdatePrizeInput {
+  prizeNumber: Int
+  prize: String
+  description: String
+}
+
+type UserRaffle {
+  id: ID!
+  user: User!
+  raffle: Raffle!
+  raffleRole: RaffleRole!
+}
+
+type CreateUserRaffleInput {
+  user: User!
+  raffle: Raffle!
+  raffleRole: RaffleRole!
+}
+
+type UpdateUserRaffleInput {
+  user: User
+  raffle: Raffle
+  raffleRole: RaffleRole
+}
+
+type Order {
+  id: ID!
+  raffleNumber: Int!
+  paymentMethod: PaymentMethod!
+  buyer: User!
+  winner: [Winner!]!
+  raffle: Raffle!
+  status: OrderStatus!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type CreateOrderInput {
+  raffleNumber: Int!
+  paymentMethod: PaymentMethod!
+  raffle: Raffle!
+  status: OrderStatus!
+}
+
+type UpdateOrderInput {
+  paymentMethod: PaymentMethod
+  raffle: Raffle
+  status: OrderStatus
+}
+
+type Winner {
+  id: ID!
+  drawNumber: Int!
+  order: Order!
+}
+
+type SiteOrder {
+  id: ID!
+  purchaseDate: String!
+  raffle: Raffle!
+}
+
+type CreateSiteOrderInput {
+  raffle: Raffle!
+}
+
+enum SiteRole {
+  ADMIN
+  USER
+}
+
+enum RaffleRole {
+  ADMIN
+  VENDEDOR
+}
+
+enum PaymentMethod {
+  TRANSFERENCIA
+  DINHEIRO
+  PICPAY
+  MERCADOPAGO
+  PAYPAL
+}
+
+enum OrderStatus {
+  PAGO
+  RESERVADO
 }
 
 enum MutationType {
