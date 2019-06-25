@@ -11,7 +11,8 @@ type User {
   raffles: [UserRaffle!]! @relation(name: "UserToRaffle", onDelete: CASCADE)
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
-  orders: [Order!]! @relation(name: "UserToOrder", onDelete: CASCADE)
+  orders: [Order!]! @relation(name: "BuyerToOrder", onDelete: CASCADE)
+  sales: [Order!]! @relation(name: "SellerToOrder", onDelete: CASCADE)
 }
 
 type Raffle {
@@ -48,7 +49,8 @@ type Order {
   id: ID! @id
   raffleNumber: Int!
   paymentMethod: PaymentMethod!
-  buyer: User! @relation(name: "UserToOrder", onDelete: SET_NULL)
+  buyer: User! @relation(name: "BuyerToOrder", onDelete: SET_NULL)
+  seller: User! @relation(name: "SellerToOrder", onDelete: SET_NULL)
   winner: [Winner!]! @relation(name: "OrderToWinner")
   raffle: Raffle! @relation(name: "RaffleToOrder", onDelete: SET_NULL)
   status: OrderStatus! @default(value: RESERVADO)

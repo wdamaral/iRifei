@@ -2,9 +2,12 @@ import bcrypt from "bcryptjs"
 import generateToken from "../utils/generateToken"
 import getUserId from "../utils/getUserId"
 import hashPassword from "../utils/hashPassword"
+import isRaffleAdmin from '../utils/isRaffleAdmin'
+
 import {
 	addFragmentToInfo
-} from "graphql-binding";
+} from "graphql-binding"
+
 
 const Mutation = {
 	async createUser(parent, args, {
@@ -125,7 +128,7 @@ const Mutation = {
 					id: userId
 				}
 			},
-			raffleRole: 'ADMIN',
+			raffleRole: "ADMIN",
 			raffle: {
 				create: {
 					size: data.size,
@@ -137,7 +140,7 @@ const Mutation = {
 						create: {
 							prizeNumber: data.prize.prizeNumber,
 							prize: data.prize.prize,
-							description: data.prize.description,
+							description: data.prize.description
 						}
 					}
 				}
@@ -154,24 +157,8 @@ const Mutation = {
 		const userId = getUserId(request)
 		const raffleId = args.id
 
-		const isRaffleAdmin = await prisma.query.userRaffle({
-			where: {
-				AND: [{
-						user: userId
-					},
-					{
-						raffle: raffleId
-					},
-					{
-						userRole: 'ADMIN'
-					}
-				]
-			}
-		})
-
-		if (!isRaffleAdmin) {
-			throw new Error('You cannot edit this raffle.')
-		}
+		//fails if not admin
+		isRaffleAdmin(userId, raffleId)
 
 		const prizeNumberExists = await prisma.query.prize({
 			where: {
@@ -186,7 +173,7 @@ const Mutation = {
 		})
 
 		if (prizeNumberExists) {
-			throw new Error('Prize number already registered for this raffle.')
+			throw new Error("Prize number already registered for this raffle.")
 		}
 
 		return prisma.mutation.createPrize({
@@ -197,7 +184,6 @@ const Mutation = {
 				}
 			}
 		})
-
 	},
 	async updatePrize(parent, args, {
 		prisma,
@@ -207,33 +193,16 @@ const Mutation = {
 			data
 		} = args
 		const userId = getUserId(request)
-		const prizeId = args.id
 
 		const prizeExists = await prisma.exists.prize({
 			id: args.id
 		})
 		if (!prizeExists) {
-			throw new Error('Prize not found.')
+			throw new Error("Prize not found.")
 		}
 
-		const isRaffleAdmin = await prisma.query.userRaffle({
-			where: {
-				AND: [{
-						user: userId
-					},
-					{
-						raffle: raffleId
-					},
-					{
-						userRole: 'ADMIN'
-					}
-				]
-			}
-		})
-
-		if (!isRaffleAdmin) {
-			throw new Error('You cannot edit this raffle.')
-		}
+		//fails if not admin
+		isRaffleAdmin(userId, raffleId)
 
 		const prizeNumberExists = await prisma.query.prize({
 			where: {
@@ -248,7 +217,7 @@ const Mutation = {
 		})
 
 		if (prizeNumberExists) {
-			throw new Error('Prize number already registered for this raffle.')
+			throw new Error("Prize number already registered for this raffle.")
 		}
 
 		return prisma.mutation.createPrize({
@@ -258,8 +227,29 @@ const Mutation = {
 					id: raffleId
 				}
 			}
-		})
+		}, info)
+	},
+	async deletePrize(parent, args, {
+		prisma,
+		request
+	}, info) {
+		const {
+			id,
+			raffleId
+		} = args
+		const userId = getUserId(request)
 
+		//fails if not admin
+		isRaffleAdmin(userId, raffleId)
+
+		//fails if any ticket sold
+		isTicketSold(raffleId)
+
+		return prisma.mutation.deletePrize({
+			where: {
+				id
+			}
+		}, info)
 	},
 	async createUserRaffle(parent, args, {
 		prisma,
@@ -272,25 +262,8 @@ const Mutation = {
 		const raffleId = args.id
 		const idUserToAdd = args.userId
 
-		//MUST CHECK IF USER IS ADMIN
-		const isRaffleAdmin = await prisma.query.userRaffle({
-			where: {
-				AND: [{
-						user: userId
-					},
-					{
-						raffle: raffleId
-					},
-					{
-						userRole: 'ADMIN'
-					}
-				]
-			}
-		})
-
-		if (!isRaffleAdmin) {
-			throw new Error('You cannot edit this raffle.')
-		}
+		//fails if not admin
+		isRaffleAdmin(userId, raffleId)
 
 		const isUserAdded = await prisma.query.userRaffle({
 			where: {
@@ -305,22 +278,24 @@ const Mutation = {
 		})
 
 		if (isUserAdded) {
-			throw new Error('User already added to this raffle.')
+			throw new Error("User already added to this raffle.")
 		}
 
 		return prisma.mutation.createUserRaffle({
-			user: {
-				connect: {
-					id: idUserToAdd
+				user: {
+					connect: {
+						id: idUserToAdd
+					}
+				},
+				raffleRole: data.userRole,
+				raffle: {
+					connect: {
+						id: raffleId
+					}
 				}
 			},
-			raffleRole: data.userRole,
-			raffle: {
-				connect: {
-					id: raffleId
-				}
-			}
-		})
+			info
+		)
 	},
 	async updateUserRaffle(parent, args, {
 		prisma,
@@ -330,22 +305,37 @@ const Mutation = {
 			data
 		} = args
 		const userId = getUserId(request)
-		const raffleId = 'RAFFLE ID MUST COME FROM THE REQUEST'
+		const raffleId = args.id
+		const userToEdit = args.userId
 
-		return prisma.mutation.createUserRaffle({
-			user: {
-				connect: {
-					id: data.userId
-				}
+		//fails if not admin
+		isRaffleAdmin(userId, raffleId)
+
+		return prisma.mutation.updateUserRaffle({
+				where: {
+					AND: [{
+							user: userToEdit
+						},
+						{
+							raffle: raffleId
+						}
+					]
+				},
+				data
 			},
-			raffleRole: data.userRole,
-			raffle: {
-				connect: {
-					id: raffleId
-				}
-			}
-		})
+			info
+		)
 	},
+	async deleteUserRaffle(parent, args, {
+		prisma,
+		request
+	}, info) {
+		const {
+			data
+		} = args
+		const userId = getUserId(request)
+		const userToDelete = args.id
+	}
 }
 
 export {
