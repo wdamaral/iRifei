@@ -1,15 +1,27 @@
-# source: http://localhost:4466
-# timestamp: Wed May 29 2019 12:53:29 GMT-0400 (Eastern Daylight Time)
+# source: http://localhost:4466/iRifei/dev
+# timestamp: Mon Jul 01 2019 19:45:40 GMT-0400 (Eastern Daylight Time)
 
-type AggregateComment {
+type AggregateOrder {
   count: Int!
 }
 
-type AggregatePost {
+type AggregatePrize {
+  count: Int!
+}
+
+type AggregateRaffle {
   count: Int!
 }
 
 type AggregateUser {
+  count: Int!
+}
+
+type AggregateUserRaffle {
+  count: Int!
+}
+
+type AggregateWinner {
   count: Int!
 }
 
@@ -18,90 +30,205 @@ type BatchPayload {
   count: Long!
 }
 
-type Comment implements Node {
+scalar DateTime
+
+"""Raw JSON value"""
+scalar Json
+
+"""
+The `Long` scalar type represents non-fractional signed whole numeric values.
+Long can represent values between -(2^63) and 2^63 - 1.
+"""
+scalar Long
+
+type Mutation {
+  createUser(data: UserCreateInput!): User!
+  createRaffle(data: RaffleCreateInput!): Raffle!
+  createPrize(data: PrizeCreateInput!): Prize!
+  createUserRaffle(data: UserRaffleCreateInput!): UserRaffle!
+  createOrder(data: OrderCreateInput!): Order!
+  createWinner(data: WinnerCreateInput!): Winner!
+  updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
+  updateRaffle(data: RaffleUpdateInput!, where: RaffleWhereUniqueInput!): Raffle
+  updatePrize(data: PrizeUpdateInput!, where: PrizeWhereUniqueInput!): Prize
+  updateUserRaffle(data: UserRaffleUpdateInput!, where: UserRaffleWhereUniqueInput!): UserRaffle
+  updateOrder(data: OrderUpdateInput!, where: OrderWhereUniqueInput!): Order
+  updateWinner(data: WinnerUpdateInput!, where: WinnerWhereUniqueInput!): Winner
+  deleteUser(where: UserWhereUniqueInput!): User
+  deleteRaffle(where: RaffleWhereUniqueInput!): Raffle
+  deletePrize(where: PrizeWhereUniqueInput!): Prize
+  deleteUserRaffle(where: UserRaffleWhereUniqueInput!): UserRaffle
+  deleteOrder(where: OrderWhereUniqueInput!): Order
+  deleteWinner(where: WinnerWhereUniqueInput!): Winner
+  upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
+  upsertRaffle(where: RaffleWhereUniqueInput!, create: RaffleCreateInput!, update: RaffleUpdateInput!): Raffle!
+  upsertPrize(where: PrizeWhereUniqueInput!, create: PrizeCreateInput!, update: PrizeUpdateInput!): Prize!
+  upsertUserRaffle(where: UserRaffleWhereUniqueInput!, create: UserRaffleCreateInput!, update: UserRaffleUpdateInput!): UserRaffle!
+  upsertOrder(where: OrderWhereUniqueInput!, create: OrderCreateInput!, update: OrderUpdateInput!): Order!
+  upsertWinner(where: WinnerWhereUniqueInput!, create: WinnerCreateInput!, update: WinnerUpdateInput!): Winner!
+  updateManyUsers(data: UserUpdateManyMutationInput!, where: UserWhereInput): BatchPayload!
+  updateManyRaffles(data: RaffleUpdateManyMutationInput!, where: RaffleWhereInput): BatchPayload!
+  updateManyPrizes(data: PrizeUpdateManyMutationInput!, where: PrizeWhereInput): BatchPayload!
+  updateManyUserRaffles(data: UserRaffleUpdateManyMutationInput!, where: UserRaffleWhereInput): BatchPayload!
+  updateManyOrders(data: OrderUpdateManyMutationInput!, where: OrderWhereInput): BatchPayload!
+  updateManyWinners(data: WinnerUpdateManyMutationInput!, where: WinnerWhereInput): BatchPayload!
+  deleteManyUsers(where: UserWhereInput): BatchPayload!
+  deleteManyRaffles(where: RaffleWhereInput): BatchPayload!
+  deleteManyPrizes(where: PrizeWhereInput): BatchPayload!
+  deleteManyUserRaffles(where: UserRaffleWhereInput): BatchPayload!
+  deleteManyOrders(where: OrderWhereInput): BatchPayload!
+  deleteManyWinners(where: WinnerWhereInput): BatchPayload!
+  executeRaw(database: PrismaDatabase, query: String!): Json!
+}
+
+enum MutationType {
+  CREATED
+  UPDATED
+  DELETED
+}
+
+"""An object with an ID"""
+interface Node {
+  """The id of the object."""
   id: ID!
-  text: String!
+}
+
+type Order implements Node {
+  id: ID!
+  raffleNumber: Int!
+  paymentMethod: PaymentMethod!
+  buyer: User!
+  seller: User!
+  winner(where: WinnerWhereInput, orderBy: WinnerOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Winner!]
+  raffle: Raffle!
+  status: OrderStatus!
   createdAt: DateTime!
   updatedAt: DateTime!
-  author: User!
-  post: Post!
 }
 
 """A connection to a list of items."""
-type CommentConnection {
+type OrderConnection {
   """Information to aid in pagination."""
   pageInfo: PageInfo!
 
   """A list of edges."""
-  edges: [CommentEdge]!
-  aggregate: AggregateComment!
+  edges: [OrderEdge]!
+  aggregate: AggregateOrder!
 }
 
-input CommentCreateInput {
+input OrderCreateInput {
   id: ID
-  text: String!
-  author: UserCreateOneWithoutCommentsInput!
-  post: PostCreateOneWithoutCommentsInput!
+  raffleNumber: Int!
+  paymentMethod: PaymentMethod!
+  status: OrderStatus
+  buyer: UserCreateOneWithoutOrdersInput!
+  seller: UserCreateOneWithoutSalesInput!
+  winner: WinnerCreateManyWithoutOrderInput
+  raffle: RaffleCreateOneWithoutOrdersInput!
 }
 
-input CommentCreateManyWithoutAuthorInput {
-  create: [CommentCreateWithoutAuthorInput!]
-  connect: [CommentWhereUniqueInput!]
+input OrderCreateManyWithoutBuyerInput {
+  create: [OrderCreateWithoutBuyerInput!]
+  connect: [OrderWhereUniqueInput!]
 }
 
-input CommentCreateManyWithoutPostInput {
-  create: [CommentCreateWithoutPostInput!]
-  connect: [CommentWhereUniqueInput!]
+input OrderCreateManyWithoutRaffleInput {
+  create: [OrderCreateWithoutRaffleInput!]
+  connect: [OrderWhereUniqueInput!]
 }
 
-input CommentCreateWithoutAuthorInput {
+input OrderCreateManyWithoutSellerInput {
+  create: [OrderCreateWithoutSellerInput!]
+  connect: [OrderWhereUniqueInput!]
+}
+
+input OrderCreateOneWithoutWinnerInput {
+  create: OrderCreateWithoutWinnerInput
+  connect: OrderWhereUniqueInput
+}
+
+input OrderCreateWithoutBuyerInput {
   id: ID
-  text: String!
-  post: PostCreateOneWithoutCommentsInput!
+  raffleNumber: Int!
+  paymentMethod: PaymentMethod!
+  status: OrderStatus
+  seller: UserCreateOneWithoutSalesInput!
+  winner: WinnerCreateManyWithoutOrderInput
+  raffle: RaffleCreateOneWithoutOrdersInput!
 }
 
-input CommentCreateWithoutPostInput {
+input OrderCreateWithoutRaffleInput {
   id: ID
-  text: String!
-  author: UserCreateOneWithoutCommentsInput!
+  raffleNumber: Int!
+  paymentMethod: PaymentMethod!
+  status: OrderStatus
+  buyer: UserCreateOneWithoutOrdersInput!
+  seller: UserCreateOneWithoutSalesInput!
+  winner: WinnerCreateManyWithoutOrderInput
+}
+
+input OrderCreateWithoutSellerInput {
+  id: ID
+  raffleNumber: Int!
+  paymentMethod: PaymentMethod!
+  status: OrderStatus
+  buyer: UserCreateOneWithoutOrdersInput!
+  winner: WinnerCreateManyWithoutOrderInput
+  raffle: RaffleCreateOneWithoutOrdersInput!
+}
+
+input OrderCreateWithoutWinnerInput {
+  id: ID
+  raffleNumber: Int!
+  paymentMethod: PaymentMethod!
+  status: OrderStatus
+  buyer: UserCreateOneWithoutOrdersInput!
+  seller: UserCreateOneWithoutSalesInput!
+  raffle: RaffleCreateOneWithoutOrdersInput!
 }
 
 """An edge in a connection."""
-type CommentEdge {
+type OrderEdge {
   """The item at the end of the edge."""
-  node: Comment!
+  node: Order!
 
   """A cursor for use in pagination."""
   cursor: String!
 }
 
-enum CommentOrderByInput {
+enum OrderOrderByInput {
   id_ASC
   id_DESC
-  text_ASC
-  text_DESC
+  raffleNumber_ASC
+  raffleNumber_DESC
+  paymentMethod_ASC
+  paymentMethod_DESC
+  status_ASC
+  status_DESC
   createdAt_ASC
   createdAt_DESC
   updatedAt_ASC
   updatedAt_DESC
 }
 
-type CommentPreviousValues {
+type OrderPreviousValues {
   id: ID!
-  text: String!
+  raffleNumber: Int!
+  paymentMethod: PaymentMethod!
+  status: OrderStatus!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
 
-input CommentScalarWhereInput {
+input OrderScalarWhereInput {
   """Logical AND on all given filters."""
-  AND: [CommentScalarWhereInput!]
+  AND: [OrderScalarWhereInput!]
 
   """Logical OR on all given filters."""
-  OR: [CommentScalarWhereInput!]
+  OR: [OrderScalarWhereInput!]
 
   """Logical NOT on all given filters combined by AND."""
-  NOT: [CommentScalarWhereInput!]
+  NOT: [OrderScalarWhereInput!]
   id: ID
 
   """All values that are not equal to given value."""
@@ -142,46 +269,48 @@ input CommentScalarWhereInput {
 
   """All values not ending with the given string."""
   id_not_ends_with: ID
-  text: String
+  raffleNumber: Int
 
   """All values that are not equal to given value."""
-  text_not: String
+  raffleNumber_not: Int
 
   """All values that are contained in given list."""
-  text_in: [String!]
+  raffleNumber_in: [Int!]
 
   """All values that are not contained in given list."""
-  text_not_in: [String!]
+  raffleNumber_not_in: [Int!]
 
   """All values less than the given value."""
-  text_lt: String
+  raffleNumber_lt: Int
 
   """All values less than or equal the given value."""
-  text_lte: String
+  raffleNumber_lte: Int
 
   """All values greater than the given value."""
-  text_gt: String
+  raffleNumber_gt: Int
 
   """All values greater than or equal the given value."""
-  text_gte: String
+  raffleNumber_gte: Int
+  paymentMethod: PaymentMethod
 
-  """All values containing the given string."""
-  text_contains: String
+  """All values that are not equal to given value."""
+  paymentMethod_not: PaymentMethod
 
-  """All values not containing the given string."""
-  text_not_contains: String
+  """All values that are contained in given list."""
+  paymentMethod_in: [PaymentMethod!]
 
-  """All values starting with the given string."""
-  text_starts_with: String
+  """All values that are not contained in given list."""
+  paymentMethod_not_in: [PaymentMethod!]
+  status: OrderStatus
 
-  """All values not starting with the given string."""
-  text_not_starts_with: String
+  """All values that are not equal to given value."""
+  status_not: OrderStatus
 
-  """All values ending with the given string."""
-  text_ends_with: String
+  """All values that are contained in given list."""
+  status_in: [OrderStatus!]
 
-  """All values not ending with the given string."""
-  text_not_ends_with: String
+  """All values that are not contained in given list."""
+  status_not_in: [OrderStatus!]
   createdAt: DateTime
 
   """All values that are not equal to given value."""
@@ -228,22 +357,27 @@ input CommentScalarWhereInput {
   updatedAt_gte: DateTime
 }
 
-type CommentSubscriptionPayload {
-  mutation: MutationType!
-  node: Comment
-  updatedFields: [String!]
-  previousValues: CommentPreviousValues
+enum OrderStatus {
+  PAGO
+  RESERVADO
 }
 
-input CommentSubscriptionWhereInput {
+type OrderSubscriptionPayload {
+  mutation: MutationType!
+  node: Order
+  updatedFields: [String!]
+  previousValues: OrderPreviousValues
+}
+
+input OrderSubscriptionWhereInput {
   """Logical AND on all given filters."""
-  AND: [CommentSubscriptionWhereInput!]
+  AND: [OrderSubscriptionWhereInput!]
 
   """Logical OR on all given filters."""
-  OR: [CommentSubscriptionWhereInput!]
+  OR: [OrderSubscriptionWhereInput!]
 
   """Logical NOT on all given filters combined by AND."""
-  NOT: [CommentSubscriptionWhereInput!]
+  NOT: [OrderSubscriptionWhereInput!]
 
   """The subscription event gets dispatched when it's listed in mutation_in"""
   mutation_in: [MutationType!]
@@ -262,93 +396,162 @@ input CommentSubscriptionWhereInput {
   The subscription event gets only dispatched when some of the field names included in this list have been updated
   """
   updatedFields_contains_some: [String!]
-  node: CommentWhereInput
+  node: OrderWhereInput
 }
 
-input CommentUpdateInput {
-  text: String
-  author: UserUpdateOneRequiredWithoutCommentsInput
-  post: PostUpdateOneRequiredWithoutCommentsInput
+input OrderUpdateInput {
+  raffleNumber: Int
+  paymentMethod: PaymentMethod
+  status: OrderStatus
+  buyer: UserUpdateOneRequiredWithoutOrdersInput
+  seller: UserUpdateOneRequiredWithoutSalesInput
+  winner: WinnerUpdateManyWithoutOrderInput
+  raffle: RaffleUpdateOneRequiredWithoutOrdersInput
 }
 
-input CommentUpdateManyDataInput {
-  text: String
+input OrderUpdateManyDataInput {
+  raffleNumber: Int
+  paymentMethod: PaymentMethod
+  status: OrderStatus
 }
 
-input CommentUpdateManyMutationInput {
-  text: String
+input OrderUpdateManyMutationInput {
+  raffleNumber: Int
+  paymentMethod: PaymentMethod
+  status: OrderStatus
 }
 
-input CommentUpdateManyWithoutAuthorInput {
-  create: [CommentCreateWithoutAuthorInput!]
-  connect: [CommentWhereUniqueInput!]
-  set: [CommentWhereUniqueInput!]
-  disconnect: [CommentWhereUniqueInput!]
-  delete: [CommentWhereUniqueInput!]
-  update: [CommentUpdateWithWhereUniqueWithoutAuthorInput!]
-  updateMany: [CommentUpdateManyWithWhereNestedInput!]
-  deleteMany: [CommentScalarWhereInput!]
-  upsert: [CommentUpsertWithWhereUniqueWithoutAuthorInput!]
+input OrderUpdateManyWithoutBuyerInput {
+  create: [OrderCreateWithoutBuyerInput!]
+  connect: [OrderWhereUniqueInput!]
+  set: [OrderWhereUniqueInput!]
+  disconnect: [OrderWhereUniqueInput!]
+  delete: [OrderWhereUniqueInput!]
+  update: [OrderUpdateWithWhereUniqueWithoutBuyerInput!]
+  updateMany: [OrderUpdateManyWithWhereNestedInput!]
+  deleteMany: [OrderScalarWhereInput!]
+  upsert: [OrderUpsertWithWhereUniqueWithoutBuyerInput!]
 }
 
-input CommentUpdateManyWithoutPostInput {
-  create: [CommentCreateWithoutPostInput!]
-  connect: [CommentWhereUniqueInput!]
-  set: [CommentWhereUniqueInput!]
-  disconnect: [CommentWhereUniqueInput!]
-  delete: [CommentWhereUniqueInput!]
-  update: [CommentUpdateWithWhereUniqueWithoutPostInput!]
-  updateMany: [CommentUpdateManyWithWhereNestedInput!]
-  deleteMany: [CommentScalarWhereInput!]
-  upsert: [CommentUpsertWithWhereUniqueWithoutPostInput!]
+input OrderUpdateManyWithoutRaffleInput {
+  create: [OrderCreateWithoutRaffleInput!]
+  connect: [OrderWhereUniqueInput!]
+  set: [OrderWhereUniqueInput!]
+  disconnect: [OrderWhereUniqueInput!]
+  delete: [OrderWhereUniqueInput!]
+  update: [OrderUpdateWithWhereUniqueWithoutRaffleInput!]
+  updateMany: [OrderUpdateManyWithWhereNestedInput!]
+  deleteMany: [OrderScalarWhereInput!]
+  upsert: [OrderUpsertWithWhereUniqueWithoutRaffleInput!]
 }
 
-input CommentUpdateManyWithWhereNestedInput {
-  where: CommentScalarWhereInput!
-  data: CommentUpdateManyDataInput!
+input OrderUpdateManyWithoutSellerInput {
+  create: [OrderCreateWithoutSellerInput!]
+  connect: [OrderWhereUniqueInput!]
+  set: [OrderWhereUniqueInput!]
+  disconnect: [OrderWhereUniqueInput!]
+  delete: [OrderWhereUniqueInput!]
+  update: [OrderUpdateWithWhereUniqueWithoutSellerInput!]
+  updateMany: [OrderUpdateManyWithWhereNestedInput!]
+  deleteMany: [OrderScalarWhereInput!]
+  upsert: [OrderUpsertWithWhereUniqueWithoutSellerInput!]
 }
 
-input CommentUpdateWithoutAuthorDataInput {
-  text: String
-  post: PostUpdateOneRequiredWithoutCommentsInput
+input OrderUpdateManyWithWhereNestedInput {
+  where: OrderScalarWhereInput!
+  data: OrderUpdateManyDataInput!
 }
 
-input CommentUpdateWithoutPostDataInput {
-  text: String
-  author: UserUpdateOneRequiredWithoutCommentsInput
+input OrderUpdateOneRequiredWithoutWinnerInput {
+  create: OrderCreateWithoutWinnerInput
+  connect: OrderWhereUniqueInput
+  update: OrderUpdateWithoutWinnerDataInput
+  upsert: OrderUpsertWithoutWinnerInput
 }
 
-input CommentUpdateWithWhereUniqueWithoutAuthorInput {
-  where: CommentWhereUniqueInput!
-  data: CommentUpdateWithoutAuthorDataInput!
+input OrderUpdateWithoutBuyerDataInput {
+  raffleNumber: Int
+  paymentMethod: PaymentMethod
+  status: OrderStatus
+  seller: UserUpdateOneRequiredWithoutSalesInput
+  winner: WinnerUpdateManyWithoutOrderInput
+  raffle: RaffleUpdateOneRequiredWithoutOrdersInput
 }
 
-input CommentUpdateWithWhereUniqueWithoutPostInput {
-  where: CommentWhereUniqueInput!
-  data: CommentUpdateWithoutPostDataInput!
+input OrderUpdateWithoutRaffleDataInput {
+  raffleNumber: Int
+  paymentMethod: PaymentMethod
+  status: OrderStatus
+  buyer: UserUpdateOneRequiredWithoutOrdersInput
+  seller: UserUpdateOneRequiredWithoutSalesInput
+  winner: WinnerUpdateManyWithoutOrderInput
 }
 
-input CommentUpsertWithWhereUniqueWithoutAuthorInput {
-  where: CommentWhereUniqueInput!
-  update: CommentUpdateWithoutAuthorDataInput!
-  create: CommentCreateWithoutAuthorInput!
+input OrderUpdateWithoutSellerDataInput {
+  raffleNumber: Int
+  paymentMethod: PaymentMethod
+  status: OrderStatus
+  buyer: UserUpdateOneRequiredWithoutOrdersInput
+  winner: WinnerUpdateManyWithoutOrderInput
+  raffle: RaffleUpdateOneRequiredWithoutOrdersInput
 }
 
-input CommentUpsertWithWhereUniqueWithoutPostInput {
-  where: CommentWhereUniqueInput!
-  update: CommentUpdateWithoutPostDataInput!
-  create: CommentCreateWithoutPostInput!
+input OrderUpdateWithoutWinnerDataInput {
+  raffleNumber: Int
+  paymentMethod: PaymentMethod
+  status: OrderStatus
+  buyer: UserUpdateOneRequiredWithoutOrdersInput
+  seller: UserUpdateOneRequiredWithoutSalesInput
+  raffle: RaffleUpdateOneRequiredWithoutOrdersInput
 }
 
-input CommentWhereInput {
+input OrderUpdateWithWhereUniqueWithoutBuyerInput {
+  where: OrderWhereUniqueInput!
+  data: OrderUpdateWithoutBuyerDataInput!
+}
+
+input OrderUpdateWithWhereUniqueWithoutRaffleInput {
+  where: OrderWhereUniqueInput!
+  data: OrderUpdateWithoutRaffleDataInput!
+}
+
+input OrderUpdateWithWhereUniqueWithoutSellerInput {
+  where: OrderWhereUniqueInput!
+  data: OrderUpdateWithoutSellerDataInput!
+}
+
+input OrderUpsertWithoutWinnerInput {
+  update: OrderUpdateWithoutWinnerDataInput!
+  create: OrderCreateWithoutWinnerInput!
+}
+
+input OrderUpsertWithWhereUniqueWithoutBuyerInput {
+  where: OrderWhereUniqueInput!
+  update: OrderUpdateWithoutBuyerDataInput!
+  create: OrderCreateWithoutBuyerInput!
+}
+
+input OrderUpsertWithWhereUniqueWithoutRaffleInput {
+  where: OrderWhereUniqueInput!
+  update: OrderUpdateWithoutRaffleDataInput!
+  create: OrderCreateWithoutRaffleInput!
+}
+
+input OrderUpsertWithWhereUniqueWithoutSellerInput {
+  where: OrderWhereUniqueInput!
+  update: OrderUpdateWithoutSellerDataInput!
+  create: OrderCreateWithoutSellerInput!
+}
+
+input OrderWhereInput {
   """Logical AND on all given filters."""
-  AND: [CommentWhereInput!]
+  AND: [OrderWhereInput!]
 
   """Logical OR on all given filters."""
-  OR: [CommentWhereInput!]
+  OR: [OrderWhereInput!]
 
   """Logical NOT on all given filters combined by AND."""
-  NOT: [CommentWhereInput!]
+  NOT: [OrderWhereInput!]
   id: ID
 
   """All values that are not equal to given value."""
@@ -389,46 +592,48 @@ input CommentWhereInput {
 
   """All values not ending with the given string."""
   id_not_ends_with: ID
-  text: String
+  raffleNumber: Int
 
   """All values that are not equal to given value."""
-  text_not: String
+  raffleNumber_not: Int
 
   """All values that are contained in given list."""
-  text_in: [String!]
+  raffleNumber_in: [Int!]
 
   """All values that are not contained in given list."""
-  text_not_in: [String!]
+  raffleNumber_not_in: [Int!]
 
   """All values less than the given value."""
-  text_lt: String
+  raffleNumber_lt: Int
 
   """All values less than or equal the given value."""
-  text_lte: String
+  raffleNumber_lte: Int
 
   """All values greater than the given value."""
-  text_gt: String
+  raffleNumber_gt: Int
 
   """All values greater than or equal the given value."""
-  text_gte: String
+  raffleNumber_gte: Int
+  paymentMethod: PaymentMethod
 
-  """All values containing the given string."""
-  text_contains: String
+  """All values that are not equal to given value."""
+  paymentMethod_not: PaymentMethod
 
-  """All values not containing the given string."""
-  text_not_contains: String
+  """All values that are contained in given list."""
+  paymentMethod_in: [PaymentMethod!]
 
-  """All values starting with the given string."""
-  text_starts_with: String
+  """All values that are not contained in given list."""
+  paymentMethod_not_in: [PaymentMethod!]
+  status: OrderStatus
 
-  """All values not starting with the given string."""
-  text_not_starts_with: String
+  """All values that are not equal to given value."""
+  status_not: OrderStatus
 
-  """All values ending with the given string."""
-  text_ends_with: String
+  """All values that are contained in given list."""
+  status_in: [OrderStatus!]
 
-  """All values not ending with the given string."""
-  text_not_ends_with: String
+  """All values that are not contained in given list."""
+  status_not_in: [OrderStatus!]
   createdAt: DateTime
 
   """All values that are not equal to given value."""
@@ -473,57 +678,16 @@ input CommentWhereInput {
 
   """All values greater than or equal the given value."""
   updatedAt_gte: DateTime
-  author: UserWhereInput
-  post: PostWhereInput
+  buyer: UserWhereInput
+  seller: UserWhereInput
+  winner_every: WinnerWhereInput
+  winner_some: WinnerWhereInput
+  winner_none: WinnerWhereInput
+  raffle: RaffleWhereInput
 }
 
-input CommentWhereUniqueInput {
+input OrderWhereUniqueInput {
   id: ID
-}
-
-scalar DateTime
-
-"""Raw JSON value"""
-scalar Json
-
-"""
-The `Long` scalar type represents non-fractional signed whole numeric values.
-Long can represent values between -(2^63) and 2^63 - 1.
-"""
-scalar Long
-
-type Mutation {
-  createUser(data: UserCreateInput!): User!
-  createPost(data: PostCreateInput!): Post!
-  createComment(data: CommentCreateInput!): Comment!
-  updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
-  updatePost(data: PostUpdateInput!, where: PostWhereUniqueInput!): Post
-  updateComment(data: CommentUpdateInput!, where: CommentWhereUniqueInput!): Comment
-  deleteUser(where: UserWhereUniqueInput!): User
-  deletePost(where: PostWhereUniqueInput!): Post
-  deleteComment(where: CommentWhereUniqueInput!): Comment
-  upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
-  upsertPost(where: PostWhereUniqueInput!, create: PostCreateInput!, update: PostUpdateInput!): Post!
-  upsertComment(where: CommentWhereUniqueInput!, create: CommentCreateInput!, update: CommentUpdateInput!): Comment!
-  updateManyUsers(data: UserUpdateManyMutationInput!, where: UserWhereInput): BatchPayload!
-  updateManyPosts(data: PostUpdateManyMutationInput!, where: PostWhereInput): BatchPayload!
-  updateManyComments(data: CommentUpdateManyMutationInput!, where: CommentWhereInput): BatchPayload!
-  deleteManyUsers(where: UserWhereInput): BatchPayload!
-  deleteManyPosts(where: PostWhereInput): BatchPayload!
-  deleteManyComments(where: CommentWhereInput): BatchPayload!
-  executeRaw(database: PrismaDatabase, query: String!): Json!
-}
-
-enum MutationType {
-  CREATED
-  UPDATED
-  DELETED
-}
-
-"""An object with an ID"""
-interface Node {
-  """The id of the object."""
-  id: ID!
 }
 
 """Information about pagination in a connection."""
@@ -541,290 +705,252 @@ type PageInfo {
   endCursor: String
 }
 
-type Post implements Node {
-  id: ID!
-  title: String!
-  body: String!
-  published: Boolean!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  author: User!
-  comments(where: CommentWhereInput, orderBy: CommentOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Comment!]
+enum PaymentMethod {
+  TRANSFERENCIA
+  DINHEIRO
+  PICPAY
+  MERCADOPAGO
+  PAYPAL
+}
+
+enum PrismaDatabase {
+  default
+}
+
+type Prize {
+  ID: ID!
+  prizeNumber: Int!
+  prize: String!
+  description: String
+  raffle: Raffle!
 }
 
 """A connection to a list of items."""
-type PostConnection {
+type PrizeConnection {
   """Information to aid in pagination."""
   pageInfo: PageInfo!
 
   """A list of edges."""
-  edges: [PostEdge]!
-  aggregate: AggregatePost!
+  edges: [PrizeEdge]!
+  aggregate: AggregatePrize!
 }
 
-input PostCreateInput {
-  id: ID
-  title: String!
-  body: String!
-  published: Boolean!
-  author: UserCreateOneWithoutPostsInput!
-  comments: CommentCreateManyWithoutPostInput
+input PrizeCreateInput {
+  ID: ID
+  prizeNumber: Int!
+  prize: String!
+  description: String
+  raffle: RaffleCreateOneWithoutPrizesInput!
 }
 
-input PostCreateManyWithoutAuthorInput {
-  create: [PostCreateWithoutAuthorInput!]
-  connect: [PostWhereUniqueInput!]
+input PrizeCreateManyWithoutRaffleInput {
+  create: [PrizeCreateWithoutRaffleInput!]
+  connect: [PrizeWhereUniqueInput!]
 }
 
-input PostCreateOneWithoutCommentsInput {
-  create: PostCreateWithoutCommentsInput
-  connect: PostWhereUniqueInput
-}
-
-input PostCreateWithoutAuthorInput {
-  id: ID
-  title: String!
-  body: String!
-  published: Boolean!
-  comments: CommentCreateManyWithoutPostInput
-}
-
-input PostCreateWithoutCommentsInput {
-  id: ID
-  title: String!
-  body: String!
-  published: Boolean!
-  author: UserCreateOneWithoutPostsInput!
+input PrizeCreateWithoutRaffleInput {
+  ID: ID
+  prizeNumber: Int!
+  prize: String!
+  description: String
 }
 
 """An edge in a connection."""
-type PostEdge {
+type PrizeEdge {
   """The item at the end of the edge."""
-  node: Post!
+  node: Prize!
 
   """A cursor for use in pagination."""
   cursor: String!
 }
 
-enum PostOrderByInput {
-  id_ASC
-  id_DESC
-  title_ASC
-  title_DESC
-  body_ASC
-  body_DESC
-  published_ASC
-  published_DESC
-  createdAt_ASC
-  createdAt_DESC
-  updatedAt_ASC
-  updatedAt_DESC
+enum PrizeOrderByInput {
+  ID_ASC
+  ID_DESC
+  prizeNumber_ASC
+  prizeNumber_DESC
+  prize_ASC
+  prize_DESC
+  description_ASC
+  description_DESC
 }
 
-type PostPreviousValues {
-  id: ID!
-  title: String!
-  body: String!
-  published: Boolean!
-  createdAt: DateTime!
-  updatedAt: DateTime!
+type PrizePreviousValues {
+  ID: ID!
+  prizeNumber: Int!
+  prize: String!
+  description: String
 }
 
-input PostScalarWhereInput {
+input PrizeScalarWhereInput {
   """Logical AND on all given filters."""
-  AND: [PostScalarWhereInput!]
+  AND: [PrizeScalarWhereInput!]
 
   """Logical OR on all given filters."""
-  OR: [PostScalarWhereInput!]
+  OR: [PrizeScalarWhereInput!]
 
   """Logical NOT on all given filters combined by AND."""
-  NOT: [PostScalarWhereInput!]
-  id: ID
+  NOT: [PrizeScalarWhereInput!]
+  ID: ID
 
   """All values that are not equal to given value."""
-  id_not: ID
+  ID_not: ID
 
   """All values that are contained in given list."""
-  id_in: [ID!]
+  ID_in: [ID!]
 
   """All values that are not contained in given list."""
-  id_not_in: [ID!]
+  ID_not_in: [ID!]
 
   """All values less than the given value."""
-  id_lt: ID
+  ID_lt: ID
 
   """All values less than or equal the given value."""
-  id_lte: ID
+  ID_lte: ID
 
   """All values greater than the given value."""
-  id_gt: ID
+  ID_gt: ID
 
   """All values greater than or equal the given value."""
-  id_gte: ID
+  ID_gte: ID
 
   """All values containing the given string."""
-  id_contains: ID
+  ID_contains: ID
 
   """All values not containing the given string."""
-  id_not_contains: ID
+  ID_not_contains: ID
 
   """All values starting with the given string."""
-  id_starts_with: ID
+  ID_starts_with: ID
 
   """All values not starting with the given string."""
-  id_not_starts_with: ID
+  ID_not_starts_with: ID
 
   """All values ending with the given string."""
-  id_ends_with: ID
+  ID_ends_with: ID
 
   """All values not ending with the given string."""
-  id_not_ends_with: ID
-  title: String
+  ID_not_ends_with: ID
+  prizeNumber: Int
 
   """All values that are not equal to given value."""
-  title_not: String
+  prizeNumber_not: Int
 
   """All values that are contained in given list."""
-  title_in: [String!]
+  prizeNumber_in: [Int!]
 
   """All values that are not contained in given list."""
-  title_not_in: [String!]
+  prizeNumber_not_in: [Int!]
 
   """All values less than the given value."""
-  title_lt: String
+  prizeNumber_lt: Int
 
   """All values less than or equal the given value."""
-  title_lte: String
+  prizeNumber_lte: Int
 
   """All values greater than the given value."""
-  title_gt: String
+  prizeNumber_gt: Int
 
   """All values greater than or equal the given value."""
-  title_gte: String
+  prizeNumber_gte: Int
+  prize: String
+
+  """All values that are not equal to given value."""
+  prize_not: String
+
+  """All values that are contained in given list."""
+  prize_in: [String!]
+
+  """All values that are not contained in given list."""
+  prize_not_in: [String!]
+
+  """All values less than the given value."""
+  prize_lt: String
+
+  """All values less than or equal the given value."""
+  prize_lte: String
+
+  """All values greater than the given value."""
+  prize_gt: String
+
+  """All values greater than or equal the given value."""
+  prize_gte: String
 
   """All values containing the given string."""
-  title_contains: String
+  prize_contains: String
 
   """All values not containing the given string."""
-  title_not_contains: String
+  prize_not_contains: String
 
   """All values starting with the given string."""
-  title_starts_with: String
+  prize_starts_with: String
 
   """All values not starting with the given string."""
-  title_not_starts_with: String
+  prize_not_starts_with: String
 
   """All values ending with the given string."""
-  title_ends_with: String
+  prize_ends_with: String
 
   """All values not ending with the given string."""
-  title_not_ends_with: String
-  body: String
+  prize_not_ends_with: String
+  description: String
 
   """All values that are not equal to given value."""
-  body_not: String
+  description_not: String
 
   """All values that are contained in given list."""
-  body_in: [String!]
+  description_in: [String!]
 
   """All values that are not contained in given list."""
-  body_not_in: [String!]
+  description_not_in: [String!]
 
   """All values less than the given value."""
-  body_lt: String
+  description_lt: String
 
   """All values less than or equal the given value."""
-  body_lte: String
+  description_lte: String
 
   """All values greater than the given value."""
-  body_gt: String
+  description_gt: String
 
   """All values greater than or equal the given value."""
-  body_gte: String
+  description_gte: String
 
   """All values containing the given string."""
-  body_contains: String
+  description_contains: String
 
   """All values not containing the given string."""
-  body_not_contains: String
+  description_not_contains: String
 
   """All values starting with the given string."""
-  body_starts_with: String
+  description_starts_with: String
 
   """All values not starting with the given string."""
-  body_not_starts_with: String
+  description_not_starts_with: String
 
   """All values ending with the given string."""
-  body_ends_with: String
+  description_ends_with: String
 
   """All values not ending with the given string."""
-  body_not_ends_with: String
-  published: Boolean
-
-  """All values that are not equal to given value."""
-  published_not: Boolean
-  createdAt: DateTime
-
-  """All values that are not equal to given value."""
-  createdAt_not: DateTime
-
-  """All values that are contained in given list."""
-  createdAt_in: [DateTime!]
-
-  """All values that are not contained in given list."""
-  createdAt_not_in: [DateTime!]
-
-  """All values less than the given value."""
-  createdAt_lt: DateTime
-
-  """All values less than or equal the given value."""
-  createdAt_lte: DateTime
-
-  """All values greater than the given value."""
-  createdAt_gt: DateTime
-
-  """All values greater than or equal the given value."""
-  createdAt_gte: DateTime
-  updatedAt: DateTime
-
-  """All values that are not equal to given value."""
-  updatedAt_not: DateTime
-
-  """All values that are contained in given list."""
-  updatedAt_in: [DateTime!]
-
-  """All values that are not contained in given list."""
-  updatedAt_not_in: [DateTime!]
-
-  """All values less than the given value."""
-  updatedAt_lt: DateTime
-
-  """All values less than or equal the given value."""
-  updatedAt_lte: DateTime
-
-  """All values greater than the given value."""
-  updatedAt_gt: DateTime
-
-  """All values greater than or equal the given value."""
-  updatedAt_gte: DateTime
+  description_not_ends_with: String
 }
 
-type PostSubscriptionPayload {
+type PrizeSubscriptionPayload {
   mutation: MutationType!
-  node: Post
+  node: Prize
   updatedFields: [String!]
-  previousValues: PostPreviousValues
+  previousValues: PrizePreviousValues
 }
 
-input PostSubscriptionWhereInput {
+input PrizeSubscriptionWhereInput {
   """Logical AND on all given filters."""
-  AND: [PostSubscriptionWhereInput!]
+  AND: [PrizeSubscriptionWhereInput!]
 
   """Logical OR on all given filters."""
-  OR: [PostSubscriptionWhereInput!]
+  OR: [PrizeSubscriptionWhereInput!]
 
   """Logical NOT on all given filters combined by AND."""
-  NOT: [PostSubscriptionWhereInput!]
+  NOT: [PrizeSubscriptionWhereInput!]
 
   """The subscription event gets dispatched when it's listed in mutation_in"""
   mutation_in: [MutationType!]
@@ -843,92 +969,506 @@ input PostSubscriptionWhereInput {
   The subscription event gets only dispatched when some of the field names included in this list have been updated
   """
   updatedFields_contains_some: [String!]
-  node: PostWhereInput
+  node: PrizeWhereInput
 }
 
-input PostUpdateInput {
-  title: String
-  body: String
-  published: Boolean
-  author: UserUpdateOneRequiredWithoutPostsInput
-  comments: CommentUpdateManyWithoutPostInput
+input PrizeUpdateInput {
+  prizeNumber: Int
+  prize: String
+  description: String
+  raffle: RaffleUpdateOneRequiredWithoutPrizesInput
 }
 
-input PostUpdateManyDataInput {
-  title: String
-  body: String
-  published: Boolean
+input PrizeUpdateManyDataInput {
+  prizeNumber: Int
+  prize: String
+  description: String
 }
 
-input PostUpdateManyMutationInput {
-  title: String
-  body: String
-  published: Boolean
+input PrizeUpdateManyMutationInput {
+  prizeNumber: Int
+  prize: String
+  description: String
 }
 
-input PostUpdateManyWithoutAuthorInput {
-  create: [PostCreateWithoutAuthorInput!]
-  connect: [PostWhereUniqueInput!]
-  set: [PostWhereUniqueInput!]
-  disconnect: [PostWhereUniqueInput!]
-  delete: [PostWhereUniqueInput!]
-  update: [PostUpdateWithWhereUniqueWithoutAuthorInput!]
-  updateMany: [PostUpdateManyWithWhereNestedInput!]
-  deleteMany: [PostScalarWhereInput!]
-  upsert: [PostUpsertWithWhereUniqueWithoutAuthorInput!]
+input PrizeUpdateManyWithoutRaffleInput {
+  create: [PrizeCreateWithoutRaffleInput!]
+  connect: [PrizeWhereUniqueInput!]
+  set: [PrizeWhereUniqueInput!]
+  disconnect: [PrizeWhereUniqueInput!]
+  delete: [PrizeWhereUniqueInput!]
+  update: [PrizeUpdateWithWhereUniqueWithoutRaffleInput!]
+  updateMany: [PrizeUpdateManyWithWhereNestedInput!]
+  deleteMany: [PrizeScalarWhereInput!]
+  upsert: [PrizeUpsertWithWhereUniqueWithoutRaffleInput!]
 }
 
-input PostUpdateManyWithWhereNestedInput {
-  where: PostScalarWhereInput!
-  data: PostUpdateManyDataInput!
+input PrizeUpdateManyWithWhereNestedInput {
+  where: PrizeScalarWhereInput!
+  data: PrizeUpdateManyDataInput!
 }
 
-input PostUpdateOneRequiredWithoutCommentsInput {
-  create: PostCreateWithoutCommentsInput
-  connect: PostWhereUniqueInput
-  update: PostUpdateWithoutCommentsDataInput
-  upsert: PostUpsertWithoutCommentsInput
+input PrizeUpdateWithoutRaffleDataInput {
+  prizeNumber: Int
+  prize: String
+  description: String
 }
 
-input PostUpdateWithoutAuthorDataInput {
-  title: String
-  body: String
-  published: Boolean
-  comments: CommentUpdateManyWithoutPostInput
+input PrizeUpdateWithWhereUniqueWithoutRaffleInput {
+  where: PrizeWhereUniqueInput!
+  data: PrizeUpdateWithoutRaffleDataInput!
 }
 
-input PostUpdateWithoutCommentsDataInput {
-  title: String
-  body: String
-  published: Boolean
-  author: UserUpdateOneRequiredWithoutPostsInput
+input PrizeUpsertWithWhereUniqueWithoutRaffleInput {
+  where: PrizeWhereUniqueInput!
+  update: PrizeUpdateWithoutRaffleDataInput!
+  create: PrizeCreateWithoutRaffleInput!
 }
 
-input PostUpdateWithWhereUniqueWithoutAuthorInput {
-  where: PostWhereUniqueInput!
-  data: PostUpdateWithoutAuthorDataInput!
-}
-
-input PostUpsertWithoutCommentsInput {
-  update: PostUpdateWithoutCommentsDataInput!
-  create: PostCreateWithoutCommentsInput!
-}
-
-input PostUpsertWithWhereUniqueWithoutAuthorInput {
-  where: PostWhereUniqueInput!
-  update: PostUpdateWithoutAuthorDataInput!
-  create: PostCreateWithoutAuthorInput!
-}
-
-input PostWhereInput {
+input PrizeWhereInput {
   """Logical AND on all given filters."""
-  AND: [PostWhereInput!]
+  AND: [PrizeWhereInput!]
 
   """Logical OR on all given filters."""
-  OR: [PostWhereInput!]
+  OR: [PrizeWhereInput!]
 
   """Logical NOT on all given filters combined by AND."""
-  NOT: [PostWhereInput!]
+  NOT: [PrizeWhereInput!]
+  ID: ID
+
+  """All values that are not equal to given value."""
+  ID_not: ID
+
+  """All values that are contained in given list."""
+  ID_in: [ID!]
+
+  """All values that are not contained in given list."""
+  ID_not_in: [ID!]
+
+  """All values less than the given value."""
+  ID_lt: ID
+
+  """All values less than or equal the given value."""
+  ID_lte: ID
+
+  """All values greater than the given value."""
+  ID_gt: ID
+
+  """All values greater than or equal the given value."""
+  ID_gte: ID
+
+  """All values containing the given string."""
+  ID_contains: ID
+
+  """All values not containing the given string."""
+  ID_not_contains: ID
+
+  """All values starting with the given string."""
+  ID_starts_with: ID
+
+  """All values not starting with the given string."""
+  ID_not_starts_with: ID
+
+  """All values ending with the given string."""
+  ID_ends_with: ID
+
+  """All values not ending with the given string."""
+  ID_not_ends_with: ID
+  prizeNumber: Int
+
+  """All values that are not equal to given value."""
+  prizeNumber_not: Int
+
+  """All values that are contained in given list."""
+  prizeNumber_in: [Int!]
+
+  """All values that are not contained in given list."""
+  prizeNumber_not_in: [Int!]
+
+  """All values less than the given value."""
+  prizeNumber_lt: Int
+
+  """All values less than or equal the given value."""
+  prizeNumber_lte: Int
+
+  """All values greater than the given value."""
+  prizeNumber_gt: Int
+
+  """All values greater than or equal the given value."""
+  prizeNumber_gte: Int
+  prize: String
+
+  """All values that are not equal to given value."""
+  prize_not: String
+
+  """All values that are contained in given list."""
+  prize_in: [String!]
+
+  """All values that are not contained in given list."""
+  prize_not_in: [String!]
+
+  """All values less than the given value."""
+  prize_lt: String
+
+  """All values less than or equal the given value."""
+  prize_lte: String
+
+  """All values greater than the given value."""
+  prize_gt: String
+
+  """All values greater than or equal the given value."""
+  prize_gte: String
+
+  """All values containing the given string."""
+  prize_contains: String
+
+  """All values not containing the given string."""
+  prize_not_contains: String
+
+  """All values starting with the given string."""
+  prize_starts_with: String
+
+  """All values not starting with the given string."""
+  prize_not_starts_with: String
+
+  """All values ending with the given string."""
+  prize_ends_with: String
+
+  """All values not ending with the given string."""
+  prize_not_ends_with: String
+  description: String
+
+  """All values that are not equal to given value."""
+  description_not: String
+
+  """All values that are contained in given list."""
+  description_in: [String!]
+
+  """All values that are not contained in given list."""
+  description_not_in: [String!]
+
+  """All values less than the given value."""
+  description_lt: String
+
+  """All values less than or equal the given value."""
+  description_lte: String
+
+  """All values greater than the given value."""
+  description_gt: String
+
+  """All values greater than or equal the given value."""
+  description_gte: String
+
+  """All values containing the given string."""
+  description_contains: String
+
+  """All values not containing the given string."""
+  description_not_contains: String
+
+  """All values starting with the given string."""
+  description_starts_with: String
+
+  """All values not starting with the given string."""
+  description_not_starts_with: String
+
+  """All values ending with the given string."""
+  description_ends_with: String
+
+  """All values not ending with the given string."""
+  description_not_ends_with: String
+  raffle: RaffleWhereInput
+}
+
+input PrizeWhereUniqueInput {
+  ID: ID
+}
+
+type Query {
+  users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
+  raffles(where: RaffleWhereInput, orderBy: RaffleOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Raffle]!
+  prizes(where: PrizeWhereInput, orderBy: PrizeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Prize]!
+  userRaffles(where: UserRaffleWhereInput, orderBy: UserRaffleOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [UserRaffle]!
+  orders(where: OrderWhereInput, orderBy: OrderOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Order]!
+  winners(where: WinnerWhereInput, orderBy: WinnerOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Winner]!
+  user(where: UserWhereUniqueInput!): User
+  raffle(where: RaffleWhereUniqueInput!): Raffle
+  prize(where: PrizeWhereUniqueInput!): Prize
+  userRaffle(where: UserRaffleWhereUniqueInput!): UserRaffle
+  order(where: OrderWhereUniqueInput!): Order
+  winner(where: WinnerWhereUniqueInput!): Winner
+  usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
+  rafflesConnection(where: RaffleWhereInput, orderBy: RaffleOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): RaffleConnection!
+  prizesConnection(where: PrizeWhereInput, orderBy: PrizeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PrizeConnection!
+  userRafflesConnection(where: UserRaffleWhereInput, orderBy: UserRaffleOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserRaffleConnection!
+  ordersConnection(where: OrderWhereInput, orderBy: OrderOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): OrderConnection!
+  winnersConnection(where: WinnerWhereInput, orderBy: WinnerOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): WinnerConnection!
+
+  """Fetches an object given its ID"""
+  node(
+    """The ID of an object"""
+    id: ID!
+  ): Node
+}
+
+type Raffle implements Node {
+  id: ID!
+  size: Int!
+  drawDate: DateTime!
+  price: Float!
+  isPaid: Boolean!
+  totalCost: Float!
+  orders(where: OrderWhereInput, orderBy: OrderOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Order!]
+  admins(where: UserRaffleWhereInput, orderBy: UserRaffleOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [UserRaffle!]
+  prizes(where: PrizeWhereInput, orderBy: PrizeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Prize!]
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A connection to a list of items."""
+type RaffleConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [RaffleEdge]!
+  aggregate: AggregateRaffle!
+}
+
+input RaffleCreateInput {
+  id: ID
+  size: Int!
+  drawDate: DateTime!
+  price: Float!
+  isPaid: Boolean
+  totalCost: Float!
+  orders: OrderCreateManyWithoutRaffleInput
+  admins: UserRaffleCreateManyWithoutRaffleInput
+  prizes: PrizeCreateManyWithoutRaffleInput
+}
+
+input RaffleCreateOneWithoutAdminsInput {
+  create: RaffleCreateWithoutAdminsInput
+  connect: RaffleWhereUniqueInput
+}
+
+input RaffleCreateOneWithoutOrdersInput {
+  create: RaffleCreateWithoutOrdersInput
+  connect: RaffleWhereUniqueInput
+}
+
+input RaffleCreateOneWithoutPrizesInput {
+  create: RaffleCreateWithoutPrizesInput
+  connect: RaffleWhereUniqueInput
+}
+
+input RaffleCreateWithoutAdminsInput {
+  id: ID
+  size: Int!
+  drawDate: DateTime!
+  price: Float!
+  isPaid: Boolean
+  totalCost: Float!
+  orders: OrderCreateManyWithoutRaffleInput
+  prizes: PrizeCreateManyWithoutRaffleInput
+}
+
+input RaffleCreateWithoutOrdersInput {
+  id: ID
+  size: Int!
+  drawDate: DateTime!
+  price: Float!
+  isPaid: Boolean
+  totalCost: Float!
+  admins: UserRaffleCreateManyWithoutRaffleInput
+  prizes: PrizeCreateManyWithoutRaffleInput
+}
+
+input RaffleCreateWithoutPrizesInput {
+  id: ID
+  size: Int!
+  drawDate: DateTime!
+  price: Float!
+  isPaid: Boolean
+  totalCost: Float!
+  orders: OrderCreateManyWithoutRaffleInput
+  admins: UserRaffleCreateManyWithoutRaffleInput
+}
+
+"""An edge in a connection."""
+type RaffleEdge {
+  """The item at the end of the edge."""
+  node: Raffle!
+
+  """A cursor for use in pagination."""
+  cursor: String!
+}
+
+enum RaffleOrderByInput {
+  id_ASC
+  id_DESC
+  size_ASC
+  size_DESC
+  drawDate_ASC
+  drawDate_DESC
+  price_ASC
+  price_DESC
+  isPaid_ASC
+  isPaid_DESC
+  totalCost_ASC
+  totalCost_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type RafflePreviousValues {
+  id: ID!
+  size: Int!
+  drawDate: DateTime!
+  price: Float!
+  isPaid: Boolean!
+  totalCost: Float!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum RaffleRole {
+  ADMIN
+  VENDEDOR
+}
+
+type RaffleSubscriptionPayload {
+  mutation: MutationType!
+  node: Raffle
+  updatedFields: [String!]
+  previousValues: RafflePreviousValues
+}
+
+input RaffleSubscriptionWhereInput {
+  """Logical AND on all given filters."""
+  AND: [RaffleSubscriptionWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [RaffleSubscriptionWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [RaffleSubscriptionWhereInput!]
+
+  """The subscription event gets dispatched when it's listed in mutation_in"""
+  mutation_in: [MutationType!]
+
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: RaffleWhereInput
+}
+
+input RaffleUpdateInput {
+  size: Int
+  drawDate: DateTime
+  price: Float
+  isPaid: Boolean
+  totalCost: Float
+  orders: OrderUpdateManyWithoutRaffleInput
+  admins: UserRaffleUpdateManyWithoutRaffleInput
+  prizes: PrizeUpdateManyWithoutRaffleInput
+}
+
+input RaffleUpdateManyMutationInput {
+  size: Int
+  drawDate: DateTime
+  price: Float
+  isPaid: Boolean
+  totalCost: Float
+}
+
+input RaffleUpdateOneRequiredWithoutAdminsInput {
+  create: RaffleCreateWithoutAdminsInput
+  connect: RaffleWhereUniqueInput
+  update: RaffleUpdateWithoutAdminsDataInput
+  upsert: RaffleUpsertWithoutAdminsInput
+}
+
+input RaffleUpdateOneRequiredWithoutOrdersInput {
+  create: RaffleCreateWithoutOrdersInput
+  connect: RaffleWhereUniqueInput
+  update: RaffleUpdateWithoutOrdersDataInput
+  upsert: RaffleUpsertWithoutOrdersInput
+}
+
+input RaffleUpdateOneRequiredWithoutPrizesInput {
+  create: RaffleCreateWithoutPrizesInput
+  connect: RaffleWhereUniqueInput
+  update: RaffleUpdateWithoutPrizesDataInput
+  upsert: RaffleUpsertWithoutPrizesInput
+}
+
+input RaffleUpdateWithoutAdminsDataInput {
+  size: Int
+  drawDate: DateTime
+  price: Float
+  isPaid: Boolean
+  totalCost: Float
+  orders: OrderUpdateManyWithoutRaffleInput
+  prizes: PrizeUpdateManyWithoutRaffleInput
+}
+
+input RaffleUpdateWithoutOrdersDataInput {
+  size: Int
+  drawDate: DateTime
+  price: Float
+  isPaid: Boolean
+  totalCost: Float
+  admins: UserRaffleUpdateManyWithoutRaffleInput
+  prizes: PrizeUpdateManyWithoutRaffleInput
+}
+
+input RaffleUpdateWithoutPrizesDataInput {
+  size: Int
+  drawDate: DateTime
+  price: Float
+  isPaid: Boolean
+  totalCost: Float
+  orders: OrderUpdateManyWithoutRaffleInput
+  admins: UserRaffleUpdateManyWithoutRaffleInput
+}
+
+input RaffleUpsertWithoutAdminsInput {
+  update: RaffleUpdateWithoutAdminsDataInput!
+  create: RaffleCreateWithoutAdminsInput!
+}
+
+input RaffleUpsertWithoutOrdersInput {
+  update: RaffleUpdateWithoutOrdersDataInput!
+  create: RaffleCreateWithoutOrdersInput!
+}
+
+input RaffleUpsertWithoutPrizesInput {
+  update: RaffleUpdateWithoutPrizesDataInput!
+  create: RaffleCreateWithoutPrizesInput!
+}
+
+input RaffleWhereInput {
+  """Logical AND on all given filters."""
+  AND: [RaffleWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [RaffleWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [RaffleWhereInput!]
   id: ID
 
   """All values that are not equal to given value."""
@@ -969,90 +1509,98 @@ input PostWhereInput {
 
   """All values not ending with the given string."""
   id_not_ends_with: ID
-  title: String
+  size: Int
 
   """All values that are not equal to given value."""
-  title_not: String
+  size_not: Int
 
   """All values that are contained in given list."""
-  title_in: [String!]
+  size_in: [Int!]
 
   """All values that are not contained in given list."""
-  title_not_in: [String!]
+  size_not_in: [Int!]
 
   """All values less than the given value."""
-  title_lt: String
+  size_lt: Int
 
   """All values less than or equal the given value."""
-  title_lte: String
+  size_lte: Int
 
   """All values greater than the given value."""
-  title_gt: String
+  size_gt: Int
 
   """All values greater than or equal the given value."""
-  title_gte: String
-
-  """All values containing the given string."""
-  title_contains: String
-
-  """All values not containing the given string."""
-  title_not_contains: String
-
-  """All values starting with the given string."""
-  title_starts_with: String
-
-  """All values not starting with the given string."""
-  title_not_starts_with: String
-
-  """All values ending with the given string."""
-  title_ends_with: String
-
-  """All values not ending with the given string."""
-  title_not_ends_with: String
-  body: String
+  size_gte: Int
+  drawDate: DateTime
 
   """All values that are not equal to given value."""
-  body_not: String
+  drawDate_not: DateTime
 
   """All values that are contained in given list."""
-  body_in: [String!]
+  drawDate_in: [DateTime!]
 
   """All values that are not contained in given list."""
-  body_not_in: [String!]
+  drawDate_not_in: [DateTime!]
 
   """All values less than the given value."""
-  body_lt: String
+  drawDate_lt: DateTime
 
   """All values less than or equal the given value."""
-  body_lte: String
+  drawDate_lte: DateTime
 
   """All values greater than the given value."""
-  body_gt: String
+  drawDate_gt: DateTime
 
   """All values greater than or equal the given value."""
-  body_gte: String
-
-  """All values containing the given string."""
-  body_contains: String
-
-  """All values not containing the given string."""
-  body_not_contains: String
-
-  """All values starting with the given string."""
-  body_starts_with: String
-
-  """All values not starting with the given string."""
-  body_not_starts_with: String
-
-  """All values ending with the given string."""
-  body_ends_with: String
-
-  """All values not ending with the given string."""
-  body_not_ends_with: String
-  published: Boolean
+  drawDate_gte: DateTime
+  price: Float
 
   """All values that are not equal to given value."""
-  published_not: Boolean
+  price_not: Float
+
+  """All values that are contained in given list."""
+  price_in: [Float!]
+
+  """All values that are not contained in given list."""
+  price_not_in: [Float!]
+
+  """All values less than the given value."""
+  price_lt: Float
+
+  """All values less than or equal the given value."""
+  price_lte: Float
+
+  """All values greater than the given value."""
+  price_gt: Float
+
+  """All values greater than or equal the given value."""
+  price_gte: Float
+  isPaid: Boolean
+
+  """All values that are not equal to given value."""
+  isPaid_not: Boolean
+  totalCost: Float
+
+  """All values that are not equal to given value."""
+  totalCost_not: Float
+
+  """All values that are contained in given list."""
+  totalCost_in: [Float!]
+
+  """All values that are not contained in given list."""
+  totalCost_not_in: [Float!]
+
+  """All values less than the given value."""
+  totalCost_lt: Float
+
+  """All values less than or equal the given value."""
+  totalCost_lte: Float
+
+  """All values greater than the given value."""
+  totalCost_gt: Float
+
+  """All values greater than or equal the given value."""
+  totalCost_gte: Float
   createdAt: DateTime
 
   """All values that are not equal to given value."""
@@ -1097,53 +1645,50 @@ input PostWhereInput {
 
   """All values greater than or equal the given value."""
   updatedAt_gte: DateTime
-  author: UserWhereInput
-  comments_every: CommentWhereInput
-  comments_some: CommentWhereInput
-  comments_none: CommentWhereInput
+  orders_every: OrderWhereInput
+  orders_some: OrderWhereInput
+  orders_none: OrderWhereInput
+  admins_every: UserRaffleWhereInput
+  admins_some: UserRaffleWhereInput
+  admins_none: UserRaffleWhereInput
+  prizes_every: PrizeWhereInput
+  prizes_some: PrizeWhereInput
+  prizes_none: PrizeWhereInput
 }
 
-input PostWhereUniqueInput {
+input RaffleWhereUniqueInput {
   id: ID
 }
 
-enum PrismaDatabase {
-  default
-}
-
-type Query {
-  users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
-  posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post]!
-  comments(where: CommentWhereInput, orderBy: CommentOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Comment]!
-  user(where: UserWhereUniqueInput!): User
-  post(where: PostWhereUniqueInput!): Post
-  comment(where: CommentWhereUniqueInput!): Comment
-  usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
-  postsConnection(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PostConnection!
-  commentsConnection(where: CommentWhereInput, orderBy: CommentOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): CommentConnection!
-
-  """Fetches an object given its ID"""
-  node(
-    """The ID of an object"""
-    id: ID!
-  ): Node
+enum SiteRole {
+  ADMIN
+  USER
 }
 
 type Subscription {
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
-  post(where: PostSubscriptionWhereInput): PostSubscriptionPayload
-  comment(where: CommentSubscriptionWhereInput): CommentSubscriptionPayload
+  raffle(where: RaffleSubscriptionWhereInput): RaffleSubscriptionPayload
+  prize(where: PrizeSubscriptionWhereInput): PrizeSubscriptionPayload
+  userRaffle(where: UserRaffleSubscriptionWhereInput): UserRaffleSubscriptionPayload
+  order(where: OrderSubscriptionWhereInput): OrderSubscriptionPayload
+  winner(where: WinnerSubscriptionWhereInput): WinnerSubscriptionPayload
 }
 
 type User implements Node {
   id: ID!
-  name: String!
+  cpf: String!
   email: String!
+  phoneNumber: String!
   password: String!
-  posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post!]
-  comments(where: CommentWhereInput, orderBy: CommentOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Comment!]
+  whatsApp: String
+  fName: String
+  lName: String
+  siteRole: SiteRole!
+  raffles(where: UserRaffleWhereInput, orderBy: UserRaffleOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [UserRaffle!]
   createdAt: DateTime!
   updatedAt: DateTime!
+  orders(where: OrderWhereInput, orderBy: OrderOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Order!]
+  sales(where: OrderWhereInput, orderBy: OrderOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Order!]
 }
 
 """A connection to a list of items."""
@@ -1158,37 +1703,74 @@ type UserConnection {
 
 input UserCreateInput {
   id: ID
-  name: String!
+  cpf: String!
   email: String!
+  phoneNumber: String!
   password: String!
-  posts: PostCreateManyWithoutAuthorInput
-  comments: CommentCreateManyWithoutAuthorInput
+  whatsApp: String
+  fName: String
+  lName: String
+  siteRole: SiteRole
+  raffles: UserRaffleCreateManyWithoutUserInput
+  orders: OrderCreateManyWithoutBuyerInput
+  sales: OrderCreateManyWithoutSellerInput
 }
 
-input UserCreateOneWithoutCommentsInput {
-  create: UserCreateWithoutCommentsInput
+input UserCreateOneWithoutOrdersInput {
+  create: UserCreateWithoutOrdersInput
   connect: UserWhereUniqueInput
 }
 
-input UserCreateOneWithoutPostsInput {
-  create: UserCreateWithoutPostsInput
+input UserCreateOneWithoutRafflesInput {
+  create: UserCreateWithoutRafflesInput
   connect: UserWhereUniqueInput
 }
 
-input UserCreateWithoutCommentsInput {
-  id: ID
-  name: String!
-  email: String!
-  password: String!
-  posts: PostCreateManyWithoutAuthorInput
+input UserCreateOneWithoutSalesInput {
+  create: UserCreateWithoutSalesInput
+  connect: UserWhereUniqueInput
 }
 
-input UserCreateWithoutPostsInput {
+input UserCreateWithoutOrdersInput {
   id: ID
-  name: String!
+  cpf: String!
   email: String!
+  phoneNumber: String!
   password: String!
-  comments: CommentCreateManyWithoutAuthorInput
+  whatsApp: String
+  fName: String
+  lName: String
+  siteRole: SiteRole
+  raffles: UserRaffleCreateManyWithoutUserInput
+  sales: OrderCreateManyWithoutSellerInput
+}
+
+input UserCreateWithoutRafflesInput {
+  id: ID
+  cpf: String!
+  email: String!
+  phoneNumber: String!
+  password: String!
+  whatsApp: String
+  fName: String
+  lName: String
+  siteRole: SiteRole
+  orders: OrderCreateManyWithoutBuyerInput
+  sales: OrderCreateManyWithoutSellerInput
+}
+
+input UserCreateWithoutSalesInput {
+  id: ID
+  cpf: String!
+  email: String!
+  phoneNumber: String!
+  password: String!
+  whatsApp: String
+  fName: String
+  lName: String
+  siteRole: SiteRole
+  raffles: UserRaffleCreateManyWithoutUserInput
+  orders: OrderCreateManyWithoutBuyerInput
 }
 
 """An edge in a connection."""
@@ -1203,12 +1785,22 @@ type UserEdge {
 enum UserOrderByInput {
   id_ASC
   id_DESC
-  name_ASC
-  name_DESC
+  cpf_ASC
+  cpf_DESC
   email_ASC
   email_DESC
+  phoneNumber_ASC
+  phoneNumber_DESC
   password_ASC
   password_DESC
+  whatsApp_ASC
+  whatsApp_DESC
+  fName_ASC
+  fName_DESC
+  lName_ASC
+  lName_DESC
+  siteRole_ASC
+  siteRole_DESC
   createdAt_ASC
   createdAt_DESC
   updatedAt_ASC
@@ -1217,11 +1809,323 @@ enum UserOrderByInput {
 
 type UserPreviousValues {
   id: ID!
-  name: String!
+  cpf: String!
   email: String!
+  phoneNumber: String!
   password: String!
+  whatsApp: String
+  fName: String
+  lName: String
+  siteRole: SiteRole!
   createdAt: DateTime!
   updatedAt: DateTime!
+}
+
+type UserRaffle implements Node {
+  id: ID!
+  user: User!
+  raffle: Raffle!
+  raffleRole: RaffleRole!
+}
+
+"""A connection to a list of items."""
+type UserRaffleConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [UserRaffleEdge]!
+  aggregate: AggregateUserRaffle!
+}
+
+input UserRaffleCreateInput {
+  id: ID
+  raffleRole: RaffleRole!
+  user: UserCreateOneWithoutRafflesInput!
+  raffle: RaffleCreateOneWithoutAdminsInput!
+}
+
+input UserRaffleCreateManyWithoutRaffleInput {
+  create: [UserRaffleCreateWithoutRaffleInput!]
+  connect: [UserRaffleWhereUniqueInput!]
+}
+
+input UserRaffleCreateManyWithoutUserInput {
+  create: [UserRaffleCreateWithoutUserInput!]
+  connect: [UserRaffleWhereUniqueInput!]
+}
+
+input UserRaffleCreateWithoutRaffleInput {
+  id: ID
+  raffleRole: RaffleRole!
+  user: UserCreateOneWithoutRafflesInput!
+}
+
+input UserRaffleCreateWithoutUserInput {
+  id: ID
+  raffleRole: RaffleRole!
+  raffle: RaffleCreateOneWithoutAdminsInput!
+}
+
+"""An edge in a connection."""
+type UserRaffleEdge {
+  """The item at the end of the edge."""
+  node: UserRaffle!
+
+  """A cursor for use in pagination."""
+  cursor: String!
+}
+
+enum UserRaffleOrderByInput {
+  id_ASC
+  id_DESC
+  raffleRole_ASC
+  raffleRole_DESC
+}
+
+type UserRafflePreviousValues {
+  id: ID!
+  raffleRole: RaffleRole!
+}
+
+input UserRaffleScalarWhereInput {
+  """Logical AND on all given filters."""
+  AND: [UserRaffleScalarWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [UserRaffleScalarWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [UserRaffleScalarWhereInput!]
+  id: ID
+
+  """All values that are not equal to given value."""
+  id_not: ID
+
+  """All values that are contained in given list."""
+  id_in: [ID!]
+
+  """All values that are not contained in given list."""
+  id_not_in: [ID!]
+
+  """All values less than the given value."""
+  id_lt: ID
+
+  """All values less than or equal the given value."""
+  id_lte: ID
+
+  """All values greater than the given value."""
+  id_gt: ID
+
+  """All values greater than or equal the given value."""
+  id_gte: ID
+
+  """All values containing the given string."""
+  id_contains: ID
+
+  """All values not containing the given string."""
+  id_not_contains: ID
+
+  """All values starting with the given string."""
+  id_starts_with: ID
+
+  """All values not starting with the given string."""
+  id_not_starts_with: ID
+
+  """All values ending with the given string."""
+  id_ends_with: ID
+
+  """All values not ending with the given string."""
+  id_not_ends_with: ID
+  raffleRole: RaffleRole
+
+  """All values that are not equal to given value."""
+  raffleRole_not: RaffleRole
+
+  """All values that are contained in given list."""
+  raffleRole_in: [RaffleRole!]
+
+  """All values that are not contained in given list."""
+  raffleRole_not_in: [RaffleRole!]
+}
+
+type UserRaffleSubscriptionPayload {
+  mutation: MutationType!
+  node: UserRaffle
+  updatedFields: [String!]
+  previousValues: UserRafflePreviousValues
+}
+
+input UserRaffleSubscriptionWhereInput {
+  """Logical AND on all given filters."""
+  AND: [UserRaffleSubscriptionWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [UserRaffleSubscriptionWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [UserRaffleSubscriptionWhereInput!]
+
+  """The subscription event gets dispatched when it's listed in mutation_in"""
+  mutation_in: [MutationType!]
+
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: UserRaffleWhereInput
+}
+
+input UserRaffleUpdateInput {
+  raffleRole: RaffleRole
+  user: UserUpdateOneRequiredWithoutRafflesInput
+  raffle: RaffleUpdateOneRequiredWithoutAdminsInput
+}
+
+input UserRaffleUpdateManyDataInput {
+  raffleRole: RaffleRole
+}
+
+input UserRaffleUpdateManyMutationInput {
+  raffleRole: RaffleRole
+}
+
+input UserRaffleUpdateManyWithoutRaffleInput {
+  create: [UserRaffleCreateWithoutRaffleInput!]
+  connect: [UserRaffleWhereUniqueInput!]
+  set: [UserRaffleWhereUniqueInput!]
+  disconnect: [UserRaffleWhereUniqueInput!]
+  delete: [UserRaffleWhereUniqueInput!]
+  update: [UserRaffleUpdateWithWhereUniqueWithoutRaffleInput!]
+  updateMany: [UserRaffleUpdateManyWithWhereNestedInput!]
+  deleteMany: [UserRaffleScalarWhereInput!]
+  upsert: [UserRaffleUpsertWithWhereUniqueWithoutRaffleInput!]
+}
+
+input UserRaffleUpdateManyWithoutUserInput {
+  create: [UserRaffleCreateWithoutUserInput!]
+  connect: [UserRaffleWhereUniqueInput!]
+  set: [UserRaffleWhereUniqueInput!]
+  disconnect: [UserRaffleWhereUniqueInput!]
+  delete: [UserRaffleWhereUniqueInput!]
+  update: [UserRaffleUpdateWithWhereUniqueWithoutUserInput!]
+  updateMany: [UserRaffleUpdateManyWithWhereNestedInput!]
+  deleteMany: [UserRaffleScalarWhereInput!]
+  upsert: [UserRaffleUpsertWithWhereUniqueWithoutUserInput!]
+}
+
+input UserRaffleUpdateManyWithWhereNestedInput {
+  where: UserRaffleScalarWhereInput!
+  data: UserRaffleUpdateManyDataInput!
+}
+
+input UserRaffleUpdateWithoutRaffleDataInput {
+  raffleRole: RaffleRole
+  user: UserUpdateOneRequiredWithoutRafflesInput
+}
+
+input UserRaffleUpdateWithoutUserDataInput {
+  raffleRole: RaffleRole
+  raffle: RaffleUpdateOneRequiredWithoutAdminsInput
+}
+
+input UserRaffleUpdateWithWhereUniqueWithoutRaffleInput {
+  where: UserRaffleWhereUniqueInput!
+  data: UserRaffleUpdateWithoutRaffleDataInput!
+}
+
+input UserRaffleUpdateWithWhereUniqueWithoutUserInput {
+  where: UserRaffleWhereUniqueInput!
+  data: UserRaffleUpdateWithoutUserDataInput!
+}
+
+input UserRaffleUpsertWithWhereUniqueWithoutRaffleInput {
+  where: UserRaffleWhereUniqueInput!
+  update: UserRaffleUpdateWithoutRaffleDataInput!
+  create: UserRaffleCreateWithoutRaffleInput!
+}
+
+input UserRaffleUpsertWithWhereUniqueWithoutUserInput {
+  where: UserRaffleWhereUniqueInput!
+  update: UserRaffleUpdateWithoutUserDataInput!
+  create: UserRaffleCreateWithoutUserInput!
+}
+
+input UserRaffleWhereInput {
+  """Logical AND on all given filters."""
+  AND: [UserRaffleWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [UserRaffleWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [UserRaffleWhereInput!]
+  id: ID
+
+  """All values that are not equal to given value."""
+  id_not: ID
+
+  """All values that are contained in given list."""
+  id_in: [ID!]
+
+  """All values that are not contained in given list."""
+  id_not_in: [ID!]
+
+  """All values less than the given value."""
+  id_lt: ID
+
+  """All values less than or equal the given value."""
+  id_lte: ID
+
+  """All values greater than the given value."""
+  id_gt: ID
+
+  """All values greater than or equal the given value."""
+  id_gte: ID
+
+  """All values containing the given string."""
+  id_contains: ID
+
+  """All values not containing the given string."""
+  id_not_contains: ID
+
+  """All values starting with the given string."""
+  id_starts_with: ID
+
+  """All values not starting with the given string."""
+  id_not_starts_with: ID
+
+  """All values ending with the given string."""
+  id_ends_with: ID
+
+  """All values not ending with the given string."""
+  id_not_ends_with: ID
+  raffleRole: RaffleRole
+
+  """All values that are not equal to given value."""
+  raffleRole_not: RaffleRole
+
+  """All values that are contained in given list."""
+  raffleRole_in: [RaffleRole!]
+
+  """All values that are not contained in given list."""
+  raffleRole_not_in: [RaffleRole!]
+  user: UserWhereInput
+  raffle: RaffleWhereInput
+}
+
+input UserRaffleWhereUniqueInput {
+  id: ID
 }
 
 type UserSubscriptionPayload {
@@ -1262,55 +2166,103 @@ input UserSubscriptionWhereInput {
 }
 
 input UserUpdateInput {
-  name: String
+  cpf: String
   email: String
+  phoneNumber: String
   password: String
-  posts: PostUpdateManyWithoutAuthorInput
-  comments: CommentUpdateManyWithoutAuthorInput
+  whatsApp: String
+  fName: String
+  lName: String
+  siteRole: SiteRole
+  raffles: UserRaffleUpdateManyWithoutUserInput
+  orders: OrderUpdateManyWithoutBuyerInput
+  sales: OrderUpdateManyWithoutSellerInput
 }
 
 input UserUpdateManyMutationInput {
-  name: String
+  cpf: String
   email: String
+  phoneNumber: String
   password: String
+  whatsApp: String
+  fName: String
+  lName: String
+  siteRole: SiteRole
 }
 
-input UserUpdateOneRequiredWithoutCommentsInput {
-  create: UserCreateWithoutCommentsInput
+input UserUpdateOneRequiredWithoutOrdersInput {
+  create: UserCreateWithoutOrdersInput
   connect: UserWhereUniqueInput
-  update: UserUpdateWithoutCommentsDataInput
-  upsert: UserUpsertWithoutCommentsInput
+  update: UserUpdateWithoutOrdersDataInput
+  upsert: UserUpsertWithoutOrdersInput
 }
 
-input UserUpdateOneRequiredWithoutPostsInput {
-  create: UserCreateWithoutPostsInput
+input UserUpdateOneRequiredWithoutRafflesInput {
+  create: UserCreateWithoutRafflesInput
   connect: UserWhereUniqueInput
-  update: UserUpdateWithoutPostsDataInput
-  upsert: UserUpsertWithoutPostsInput
+  update: UserUpdateWithoutRafflesDataInput
+  upsert: UserUpsertWithoutRafflesInput
 }
 
-input UserUpdateWithoutCommentsDataInput {
-  name: String
+input UserUpdateOneRequiredWithoutSalesInput {
+  create: UserCreateWithoutSalesInput
+  connect: UserWhereUniqueInput
+  update: UserUpdateWithoutSalesDataInput
+  upsert: UserUpsertWithoutSalesInput
+}
+
+input UserUpdateWithoutOrdersDataInput {
+  cpf: String
   email: String
+  phoneNumber: String
   password: String
-  posts: PostUpdateManyWithoutAuthorInput
+  whatsApp: String
+  fName: String
+  lName: String
+  siteRole: SiteRole
+  raffles: UserRaffleUpdateManyWithoutUserInput
+  sales: OrderUpdateManyWithoutSellerInput
 }
 
-input UserUpdateWithoutPostsDataInput {
-  name: String
+input UserUpdateWithoutRafflesDataInput {
+  cpf: String
   email: String
+  phoneNumber: String
   password: String
-  comments: CommentUpdateManyWithoutAuthorInput
+  whatsApp: String
+  fName: String
+  lName: String
+  siteRole: SiteRole
+  orders: OrderUpdateManyWithoutBuyerInput
+  sales: OrderUpdateManyWithoutSellerInput
 }
 
-input UserUpsertWithoutCommentsInput {
-  update: UserUpdateWithoutCommentsDataInput!
-  create: UserCreateWithoutCommentsInput!
+input UserUpdateWithoutSalesDataInput {
+  cpf: String
+  email: String
+  phoneNumber: String
+  password: String
+  whatsApp: String
+  fName: String
+  lName: String
+  siteRole: SiteRole
+  raffles: UserRaffleUpdateManyWithoutUserInput
+  orders: OrderUpdateManyWithoutBuyerInput
 }
 
-input UserUpsertWithoutPostsInput {
-  update: UserUpdateWithoutPostsDataInput!
-  create: UserCreateWithoutPostsInput!
+input UserUpsertWithoutOrdersInput {
+  update: UserUpdateWithoutOrdersDataInput!
+  create: UserCreateWithoutOrdersInput!
+}
+
+input UserUpsertWithoutRafflesInput {
+  update: UserUpdateWithoutRafflesDataInput!
+  create: UserCreateWithoutRafflesInput!
+}
+
+input UserUpsertWithoutSalesInput {
+  update: UserUpdateWithoutSalesDataInput!
+  create: UserCreateWithoutSalesInput!
 }
 
 input UserWhereInput {
@@ -1362,46 +2314,46 @@ input UserWhereInput {
 
   """All values not ending with the given string."""
   id_not_ends_with: ID
-  name: String
+  cpf: String
 
   """All values that are not equal to given value."""
-  name_not: String
+  cpf_not: String
 
   """All values that are contained in given list."""
-  name_in: [String!]
+  cpf_in: [String!]
 
   """All values that are not contained in given list."""
-  name_not_in: [String!]
+  cpf_not_in: [String!]
 
   """All values less than the given value."""
-  name_lt: String
+  cpf_lt: String
 
   """All values less than or equal the given value."""
-  name_lte: String
+  cpf_lte: String
 
   """All values greater than the given value."""
-  name_gt: String
+  cpf_gt: String
 
   """All values greater than or equal the given value."""
-  name_gte: String
+  cpf_gte: String
 
   """All values containing the given string."""
-  name_contains: String
+  cpf_contains: String
 
   """All values not containing the given string."""
-  name_not_contains: String
+  cpf_not_contains: String
 
   """All values starting with the given string."""
-  name_starts_with: String
+  cpf_starts_with: String
 
   """All values not starting with the given string."""
-  name_not_starts_with: String
+  cpf_not_starts_with: String
 
   """All values ending with the given string."""
-  name_ends_with: String
+  cpf_ends_with: String
 
   """All values not ending with the given string."""
-  name_not_ends_with: String
+  cpf_not_ends_with: String
   email: String
 
   """All values that are not equal to given value."""
@@ -1442,6 +2394,46 @@ input UserWhereInput {
 
   """All values not ending with the given string."""
   email_not_ends_with: String
+  phoneNumber: String
+
+  """All values that are not equal to given value."""
+  phoneNumber_not: String
+
+  """All values that are contained in given list."""
+  phoneNumber_in: [String!]
+
+  """All values that are not contained in given list."""
+  phoneNumber_not_in: [String!]
+
+  """All values less than the given value."""
+  phoneNumber_lt: String
+
+  """All values less than or equal the given value."""
+  phoneNumber_lte: String
+
+  """All values greater than the given value."""
+  phoneNumber_gt: String
+
+  """All values greater than or equal the given value."""
+  phoneNumber_gte: String
+
+  """All values containing the given string."""
+  phoneNumber_contains: String
+
+  """All values not containing the given string."""
+  phoneNumber_not_contains: String
+
+  """All values starting with the given string."""
+  phoneNumber_starts_with: String
+
+  """All values not starting with the given string."""
+  phoneNumber_not_starts_with: String
+
+  """All values ending with the given string."""
+  phoneNumber_ends_with: String
+
+  """All values not ending with the given string."""
+  phoneNumber_not_ends_with: String
   password: String
 
   """All values that are not equal to given value."""
@@ -1482,6 +2474,136 @@ input UserWhereInput {
 
   """All values not ending with the given string."""
   password_not_ends_with: String
+  whatsApp: String
+
+  """All values that are not equal to given value."""
+  whatsApp_not: String
+
+  """All values that are contained in given list."""
+  whatsApp_in: [String!]
+
+  """All values that are not contained in given list."""
+  whatsApp_not_in: [String!]
+
+  """All values less than the given value."""
+  whatsApp_lt: String
+
+  """All values less than or equal the given value."""
+  whatsApp_lte: String
+
+  """All values greater than the given value."""
+  whatsApp_gt: String
+
+  """All values greater than or equal the given value."""
+  whatsApp_gte: String
+
+  """All values containing the given string."""
+  whatsApp_contains: String
+
+  """All values not containing the given string."""
+  whatsApp_not_contains: String
+
+  """All values starting with the given string."""
+  whatsApp_starts_with: String
+
+  """All values not starting with the given string."""
+  whatsApp_not_starts_with: String
+
+  """All values ending with the given string."""
+  whatsApp_ends_with: String
+
+  """All values not ending with the given string."""
+  whatsApp_not_ends_with: String
+  fName: String
+
+  """All values that are not equal to given value."""
+  fName_not: String
+
+  """All values that are contained in given list."""
+  fName_in: [String!]
+
+  """All values that are not contained in given list."""
+  fName_not_in: [String!]
+
+  """All values less than the given value."""
+  fName_lt: String
+
+  """All values less than or equal the given value."""
+  fName_lte: String
+
+  """All values greater than the given value."""
+  fName_gt: String
+
+  """All values greater than or equal the given value."""
+  fName_gte: String
+
+  """All values containing the given string."""
+  fName_contains: String
+
+  """All values not containing the given string."""
+  fName_not_contains: String
+
+  """All values starting with the given string."""
+  fName_starts_with: String
+
+  """All values not starting with the given string."""
+  fName_not_starts_with: String
+
+  """All values ending with the given string."""
+  fName_ends_with: String
+
+  """All values not ending with the given string."""
+  fName_not_ends_with: String
+  lName: String
+
+  """All values that are not equal to given value."""
+  lName_not: String
+
+  """All values that are contained in given list."""
+  lName_in: [String!]
+
+  """All values that are not contained in given list."""
+  lName_not_in: [String!]
+
+  """All values less than the given value."""
+  lName_lt: String
+
+  """All values less than or equal the given value."""
+  lName_lte: String
+
+  """All values greater than the given value."""
+  lName_gt: String
+
+  """All values greater than or equal the given value."""
+  lName_gte: String
+
+  """All values containing the given string."""
+  lName_contains: String
+
+  """All values not containing the given string."""
+  lName_not_contains: String
+
+  """All values starting with the given string."""
+  lName_starts_with: String
+
+  """All values not starting with the given string."""
+  lName_not_starts_with: String
+
+  """All values ending with the given string."""
+  lName_ends_with: String
+
+  """All values not ending with the given string."""
+  lName_not_ends_with: String
+  siteRole: SiteRole
+
+  """All values that are not equal to given value."""
+  siteRole_not: SiteRole
+
+  """All values that are contained in given list."""
+  siteRole_in: [SiteRole!]
+
+  """All values that are not contained in given list."""
+  siteRole_not_in: [SiteRole!]
   createdAt: DateTime
 
   """All values that are not equal to given value."""
@@ -1526,15 +2648,305 @@ input UserWhereInput {
 
   """All values greater than or equal the given value."""
   updatedAt_gte: DateTime
-  posts_every: PostWhereInput
-  posts_some: PostWhereInput
-  posts_none: PostWhereInput
-  comments_every: CommentWhereInput
-  comments_some: CommentWhereInput
-  comments_none: CommentWhereInput
+  raffles_every: UserRaffleWhereInput
+  raffles_some: UserRaffleWhereInput
+  raffles_none: UserRaffleWhereInput
+  orders_every: OrderWhereInput
+  orders_some: OrderWhereInput
+  orders_none: OrderWhereInput
+  sales_every: OrderWhereInput
+  sales_some: OrderWhereInput
+  sales_none: OrderWhereInput
 }
 
 input UserWhereUniqueInput {
   id: ID
+  cpf: String
   email: String
+}
+
+type Winner implements Node {
+  id: ID!
+  drawNumber: Int!
+  order: Order!
+}
+
+"""A connection to a list of items."""
+type WinnerConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [WinnerEdge]!
+  aggregate: AggregateWinner!
+}
+
+input WinnerCreateInput {
+  id: ID
+  drawNumber: Int!
+  order: OrderCreateOneWithoutWinnerInput!
+}
+
+input WinnerCreateManyWithoutOrderInput {
+  create: [WinnerCreateWithoutOrderInput!]
+  connect: [WinnerWhereUniqueInput!]
+}
+
+input WinnerCreateWithoutOrderInput {
+  id: ID
+  drawNumber: Int!
+}
+
+"""An edge in a connection."""
+type WinnerEdge {
+  """The item at the end of the edge."""
+  node: Winner!
+
+  """A cursor for use in pagination."""
+  cursor: String!
+}
+
+enum WinnerOrderByInput {
+  id_ASC
+  id_DESC
+  drawNumber_ASC
+  drawNumber_DESC
+}
+
+type WinnerPreviousValues {
+  id: ID!
+  drawNumber: Int!
+}
+
+input WinnerScalarWhereInput {
+  """Logical AND on all given filters."""
+  AND: [WinnerScalarWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [WinnerScalarWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [WinnerScalarWhereInput!]
+  id: ID
+
+  """All values that are not equal to given value."""
+  id_not: ID
+
+  """All values that are contained in given list."""
+  id_in: [ID!]
+
+  """All values that are not contained in given list."""
+  id_not_in: [ID!]
+
+  """All values less than the given value."""
+  id_lt: ID
+
+  """All values less than or equal the given value."""
+  id_lte: ID
+
+  """All values greater than the given value."""
+  id_gt: ID
+
+  """All values greater than or equal the given value."""
+  id_gte: ID
+
+  """All values containing the given string."""
+  id_contains: ID
+
+  """All values not containing the given string."""
+  id_not_contains: ID
+
+  """All values starting with the given string."""
+  id_starts_with: ID
+
+  """All values not starting with the given string."""
+  id_not_starts_with: ID
+
+  """All values ending with the given string."""
+  id_ends_with: ID
+
+  """All values not ending with the given string."""
+  id_not_ends_with: ID
+  drawNumber: Int
+
+  """All values that are not equal to given value."""
+  drawNumber_not: Int
+
+  """All values that are contained in given list."""
+  drawNumber_in: [Int!]
+
+  """All values that are not contained in given list."""
+  drawNumber_not_in: [Int!]
+
+  """All values less than the given value."""
+  drawNumber_lt: Int
+
+  """All values less than or equal the given value."""
+  drawNumber_lte: Int
+
+  """All values greater than the given value."""
+  drawNumber_gt: Int
+
+  """All values greater than or equal the given value."""
+  drawNumber_gte: Int
+}
+
+type WinnerSubscriptionPayload {
+  mutation: MutationType!
+  node: Winner
+  updatedFields: [String!]
+  previousValues: WinnerPreviousValues
+}
+
+input WinnerSubscriptionWhereInput {
+  """Logical AND on all given filters."""
+  AND: [WinnerSubscriptionWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [WinnerSubscriptionWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [WinnerSubscriptionWhereInput!]
+
+  """The subscription event gets dispatched when it's listed in mutation_in"""
+  mutation_in: [MutationType!]
+
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: WinnerWhereInput
+}
+
+input WinnerUpdateInput {
+  drawNumber: Int
+  order: OrderUpdateOneRequiredWithoutWinnerInput
+}
+
+input WinnerUpdateManyDataInput {
+  drawNumber: Int
+}
+
+input WinnerUpdateManyMutationInput {
+  drawNumber: Int
+}
+
+input WinnerUpdateManyWithoutOrderInput {
+  create: [WinnerCreateWithoutOrderInput!]
+  connect: [WinnerWhereUniqueInput!]
+  set: [WinnerWhereUniqueInput!]
+  disconnect: [WinnerWhereUniqueInput!]
+  delete: [WinnerWhereUniqueInput!]
+  update: [WinnerUpdateWithWhereUniqueWithoutOrderInput!]
+  updateMany: [WinnerUpdateManyWithWhereNestedInput!]
+  deleteMany: [WinnerScalarWhereInput!]
+  upsert: [WinnerUpsertWithWhereUniqueWithoutOrderInput!]
+}
+
+input WinnerUpdateManyWithWhereNestedInput {
+  where: WinnerScalarWhereInput!
+  data: WinnerUpdateManyDataInput!
+}
+
+input WinnerUpdateWithoutOrderDataInput {
+  drawNumber: Int
+}
+
+input WinnerUpdateWithWhereUniqueWithoutOrderInput {
+  where: WinnerWhereUniqueInput!
+  data: WinnerUpdateWithoutOrderDataInput!
+}
+
+input WinnerUpsertWithWhereUniqueWithoutOrderInput {
+  where: WinnerWhereUniqueInput!
+  update: WinnerUpdateWithoutOrderDataInput!
+  create: WinnerCreateWithoutOrderInput!
+}
+
+input WinnerWhereInput {
+  """Logical AND on all given filters."""
+  AND: [WinnerWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [WinnerWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [WinnerWhereInput!]
+  id: ID
+
+  """All values that are not equal to given value."""
+  id_not: ID
+
+  """All values that are contained in given list."""
+  id_in: [ID!]
+
+  """All values that are not contained in given list."""
+  id_not_in: [ID!]
+
+  """All values less than the given value."""
+  id_lt: ID
+
+  """All values less than or equal the given value."""
+  id_lte: ID
+
+  """All values greater than the given value."""
+  id_gt: ID
+
+  """All values greater than or equal the given value."""
+  id_gte: ID
+
+  """All values containing the given string."""
+  id_contains: ID
+
+  """All values not containing the given string."""
+  id_not_contains: ID
+
+  """All values starting with the given string."""
+  id_starts_with: ID
+
+  """All values not starting with the given string."""
+  id_not_starts_with: ID
+
+  """All values ending with the given string."""
+  id_ends_with: ID
+
+  """All values not ending with the given string."""
+  id_not_ends_with: ID
+  drawNumber: Int
+
+  """All values that are not equal to given value."""
+  drawNumber_not: Int
+
+  """All values that are contained in given list."""
+  drawNumber_in: [Int!]
+
+  """All values that are not contained in given list."""
+  drawNumber_not_in: [Int!]
+
+  """All values less than the given value."""
+  drawNumber_lt: Int
+
+  """All values less than or equal the given value."""
+  drawNumber_lte: Int
+
+  """All values greater than the given value."""
+  drawNumber_gt: Int
+
+  """All values greater than or equal the given value."""
+  drawNumber_gte: Int
+  order: OrderWhereInput
+}
+
+input WinnerWhereUniqueInput {
+  id: ID
 }

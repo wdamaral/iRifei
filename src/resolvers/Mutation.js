@@ -48,31 +48,32 @@ const Mutation = {
 		const {
 			data
 		} = args
-		const user = await prisma.query.user({
+
+		const user = await prisma.query.users({
 			where: {
 				OR: [{
-						email: data.info
+						cpf: data.info
 					},
 					{
-						cpf: data.info
+						email: data.info
 					}
 				]
 			}
 		})
 
-		if (!user) {
+		if (user.length === 0) {
 			throw new Error("Desculpe. Não foi possível logar.")
 		}
 
-		const isMatch = await bcrypt.compare(data.password, user.password)
+		const isMatch = await bcrypt.compare(data.password, user[0].password)
 
 		if (!isMatch) {
 			throw new Error("Desculpe. Não foi possível logar.")
 		}
 
 		return {
-			user,
-			token: generateToken(user.id)
+			user: user[0],
+			token: generateToken(user[0].id)
 		}
 	},
 	async deleteUser(parent, args, {
@@ -123,29 +124,31 @@ const Mutation = {
 		const userId = getUserId(request)
 
 		return prisma.mutation.createUserRaffle({
-			user: {
-				connect: {
-					id: userId
-				}
-			},
-			raffleRole: "ADMIN",
-			raffle: {
-				create: {
-					size: data.size,
-					drawDate: data.drawDate,
-					price: data.price,
-					isPaid: false,
-					totalCost: data.size * costEachTicket,
-					prizes: {
-						create: {
-							prizeNumber: data.prize.prizeNumber,
-							prize: data.prize.prize,
-							description: data.prize.description
+			data: {
+				raffleRole: 'ADMIN',
+				user: {
+					connect: {
+						id: userId
+					}
+				},
+				raffle: {
+					create: {
+						size: data.size,
+						drawDate: data.drawDate,
+						price: data.price,
+						isPaid: false,
+						totalCost: data.size * costEachTicket,
+						prizes: {
+							create: {
+								prizeNumber: data.prizes.prizeNumber,
+								prize: data.prizes.prize,
+								description: data.prizes.description
+							}
 						}
 					}
 				}
 			}
-		})
+		}, info)
 	},
 	async createPrize(parent, args, {
 		prisma,
@@ -335,6 +338,56 @@ const Mutation = {
 		} = args
 		const userId = getUserId(request)
 		const userToDelete = args.id
+	},
+	async createOrder(parent, args, {
+		prisma,
+		request
+	}, info) {
+		const {
+			data
+		} = args
+		const userId = getUserid(request)
+		const sellerId = getUserId(data.tokenSeller, true, true)
+
+		const isSeller = await prisma.query.userRaflle({
+			where: {
+				AND: [{
+					user: userId
+				}, {
+					raffle: data.raffleId
+				}]
+			}
+		})
+
+		//if seller, it can define to whom he is selling
+		if (isSeller) {
+			return prisma.mutations.createOrder({
+				raffleNumber: data.raffleNumber,
+				paymentMethod: data.paymentMethod,
+				buyer: data.buyerId,
+				seller: userId,
+				raffle: {
+					connect: {
+						id: data.raffleId
+					}
+				},
+				status: data.orderStatus
+			}, info)
+		}
+
+		//if not seller, status= RESERVADO and seller comes from the token created.
+		return prisma.mutations.createOrder({
+			raffleNumber: data.raffleNumber,
+			paymentMethod: data.paymentMethod,
+			buyer: userId,
+			seller: sellerId,
+			raffle: {
+				connect: {
+					id: data.raffleId
+				}
+			},
+			status: 'RESERVADO'
+		}, info)
 	}
 }
 

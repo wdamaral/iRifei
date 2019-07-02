@@ -1,4 +1,4 @@
-# import UserOrderByInput, OrderOrderByInput, RaffleOrderByInput from './generated/prisma.graphql'
+# import UserOrderByInput, OrderOrderByInput, RaffleOrderByInput, RaffleWhereInput from './generated/prisma.graphql'
 
 type Query {
   users(
@@ -11,8 +11,18 @@ type Query {
   me: User!
   orders(query: String, first: Int, skip: Int, after: String): [Order!]!
   myOrders(query: String, first: Int, skip: Int, after: String): [Order!]!
-  raffles(query: String, first: Int, skip: Int, after: String): [Raffle!]!
-  myRaffles(query: String, first: Int, skip: Int, after: String): [Raffle!]!
+  raffles(
+    query: RaffleWhereInput
+    first: Int
+    skip: Int
+    after: String
+  ): [Raffle!]!
+  myRaffles(
+    query: RaffleWhereInput
+    first: Int
+    skip: Int
+    after: String
+  ): [Raffle!]!
   prizes: [Prize!]!
   winners: [Winner!]!
 }
@@ -24,6 +34,7 @@ type Mutation {
   deleteUser: User!
   createOrder(data: CreateOrderInput): Order!
   updateOrder(data: UpdateOrderInput): Order!
+  deleteOrder: Order!
   createRaffle(data: CreateRaffleInput): Raffle!
   updateRaffle(data: UpdateRaffleInput): Raffle!
   deleteRaffle: Raffle!
@@ -31,7 +42,7 @@ type Mutation {
   updatePrize(data: UpdatePrizeInput): Prize!
   deletePrize: Prize!
   createUserRaffle(data: CreateUserRaffleInput): UserRaffle!
-  updateUserRaffle(data: UpdateUserRaffle): UserRaffle!
+  updateUserRaffle(data: UpdateUserRaffleInput): UserRaffle!
   deleteUserRaffle: UserRaffle!
 }
 
@@ -44,14 +55,14 @@ type AuthPayload {
 }
 
 input LoginUserInput {
-  email: String!
+  info: String!
   password: String!
 }
 
 type User {
   id: ID!
   cpf: String!
-  email: String!
+  email: String
   phoneNumber: String!
   password: String!
   whatsApp: String
@@ -80,14 +91,11 @@ input UpdateUserInput {
   whatsApp: String
   fName: String
   lName: String
-  siteRole: SiteRole
 }
 
 type Raffle {
   id: ID!
   size: Int!
-  createdAt: String!
-  updatedAt: String!
   drawDate: String!
   price: Float!
   isPaid: Boolean!
@@ -100,39 +108,33 @@ type Raffle {
   updatedAt: String!
 }
 
-type CreateRaffleInput {
+input CreateRaffleInput {
   size: Int!
   drawDate: String!
   price: Float!
-  admins: [UserRaffle!]
-  prizes: [Prize!]!
+  #admins: [UserRaffle!]
+  prizes: CreatePrizeInput!
 }
 
-type UpdateRaffleInput {
-  size: Int
+input UpdateRaffleInput {
   drawDate: String
-  price: Float
-  isPaid: Boolean
-  admins: [UserRaffle!]
-  prizes: [Prize!]
-  siteOrder: SiteOrder
 }
 
 type Prize {
-  ID: ID!
+  id: ID!
   prizeNumber: Int!
   prize: String!
   description: String
   raffle: Raffle!
 }
 
-type CreatePrizeInput {
+input CreatePrizeInput {
   prizeNumber: Int!
   prize: String!
   description: String
 }
 
-type UpdatePrizeInput {
+input UpdatePrizeInput {
   prizeNumber: Int
   prize: String
   description: String
@@ -145,15 +147,15 @@ type UserRaffle {
   raffleRole: RaffleRole!
 }
 
-type CreateUserRaffleInput {
-  user: User!
-  raffle: Raffle!
+input CreateUserRaffleInput {
+  user: ID!
+  raffle: ID!
   raffleRole: RaffleRole!
 }
 
-type UpdateUserRaffleInput {
-  user: User
-  raffle: Raffle
+input UpdateUserRaffleInput {
+  user: ID!
+  raffle: ID!
   raffleRole: RaffleRole
 }
 
@@ -169,16 +171,16 @@ type Order {
   updatedAt: String!
 }
 
-type CreateOrderInput {
+input CreateOrderInput {
   raffleNumber: Int!
   paymentMethod: PaymentMethod!
-  raffle: Raffle!
+  raffle: ID!
   status: OrderStatus!
 }
 
-type UpdateOrderInput {
+input UpdateOrderInput {
   paymentMethod: PaymentMethod
-  raffle: Raffle
+  raffle: ID!
   status: OrderStatus
 }
 
@@ -194,8 +196,8 @@ type SiteOrder {
   raffle: Raffle!
 }
 
-type CreateSiteOrderInput {
-  raffle: Raffle!
+input CreateSiteOrderInput {
+  id: ID!
 }
 
 enum SiteRole {
