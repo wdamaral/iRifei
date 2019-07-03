@@ -1,5 +1,5 @@
 # source: http://localhost:4466/iRifei/dev
-# timestamp: Mon Jul 01 2019 19:45:40 GMT-0400 (Eastern Daylight Time)
+# timestamp: Tue Jul 02 2019 22:20:38 GMT-0400 (Eastern Daylight Time)
 
 type AggregateOrder {
   count: Int!
@@ -717,8 +717,8 @@ enum PrismaDatabase {
   default
 }
 
-type Prize {
-  ID: ID!
+type Prize implements Node {
+  id: ID!
   prizeNumber: Int!
   prize: String!
   description: String
@@ -736,7 +736,7 @@ type PrizeConnection {
 }
 
 input PrizeCreateInput {
-  ID: ID
+  id: ID
   prizeNumber: Int!
   prize: String!
   description: String
@@ -749,7 +749,7 @@ input PrizeCreateManyWithoutRaffleInput {
 }
 
 input PrizeCreateWithoutRaffleInput {
-  ID: ID
+  id: ID
   prizeNumber: Int!
   prize: String!
   description: String
@@ -765,8 +765,8 @@ type PrizeEdge {
 }
 
 enum PrizeOrderByInput {
-  ID_ASC
-  ID_DESC
+  id_ASC
+  id_DESC
   prizeNumber_ASC
   prizeNumber_DESC
   prize_ASC
@@ -776,7 +776,7 @@ enum PrizeOrderByInput {
 }
 
 type PrizePreviousValues {
-  ID: ID!
+  id: ID!
   prizeNumber: Int!
   prize: String!
   description: String
@@ -791,46 +791,46 @@ input PrizeScalarWhereInput {
 
   """Logical NOT on all given filters combined by AND."""
   NOT: [PrizeScalarWhereInput!]
-  ID: ID
+  id: ID
 
   """All values that are not equal to given value."""
-  ID_not: ID
+  id_not: ID
 
   """All values that are contained in given list."""
-  ID_in: [ID!]
+  id_in: [ID!]
 
   """All values that are not contained in given list."""
-  ID_not_in: [ID!]
+  id_not_in: [ID!]
 
   """All values less than the given value."""
-  ID_lt: ID
+  id_lt: ID
 
   """All values less than or equal the given value."""
-  ID_lte: ID
+  id_lte: ID
 
   """All values greater than the given value."""
-  ID_gt: ID
+  id_gt: ID
 
   """All values greater than or equal the given value."""
-  ID_gte: ID
+  id_gte: ID
 
   """All values containing the given string."""
-  ID_contains: ID
+  id_contains: ID
 
   """All values not containing the given string."""
-  ID_not_contains: ID
+  id_not_contains: ID
 
   """All values starting with the given string."""
-  ID_starts_with: ID
+  id_starts_with: ID
 
   """All values not starting with the given string."""
-  ID_not_starts_with: ID
+  id_not_starts_with: ID
 
   """All values ending with the given string."""
-  ID_ends_with: ID
+  id_ends_with: ID
 
   """All values not ending with the given string."""
-  ID_not_ends_with: ID
+  id_not_ends_with: ID
   prizeNumber: Int
 
   """All values that are not equal to given value."""
@@ -1034,46 +1034,46 @@ input PrizeWhereInput {
 
   """Logical NOT on all given filters combined by AND."""
   NOT: [PrizeWhereInput!]
-  ID: ID
+  id: ID
 
   """All values that are not equal to given value."""
-  ID_not: ID
+  id_not: ID
 
   """All values that are contained in given list."""
-  ID_in: [ID!]
+  id_in: [ID!]
 
   """All values that are not contained in given list."""
-  ID_not_in: [ID!]
+  id_not_in: [ID!]
 
   """All values less than the given value."""
-  ID_lt: ID
+  id_lt: ID
 
   """All values less than or equal the given value."""
-  ID_lte: ID
+  id_lte: ID
 
   """All values greater than the given value."""
-  ID_gt: ID
+  id_gt: ID
 
   """All values greater than or equal the given value."""
-  ID_gte: ID
+  id_gte: ID
 
   """All values containing the given string."""
-  ID_contains: ID
+  id_contains: ID
 
   """All values not containing the given string."""
-  ID_not_contains: ID
+  id_not_contains: ID
 
   """All values starting with the given string."""
-  ID_starts_with: ID
+  id_starts_with: ID
 
   """All values not starting with the given string."""
-  ID_not_starts_with: ID
+  id_not_starts_with: ID
 
   """All values ending with the given string."""
-  ID_ends_with: ID
+  id_ends_with: ID
 
   """All values not ending with the given string."""
-  ID_not_ends_with: ID
+  id_not_ends_with: ID
   prizeNumber: Int
 
   """All values that are not equal to given value."""
@@ -1180,7 +1180,7 @@ input PrizeWhereInput {
 }
 
 input PrizeWhereUniqueInput {
-  ID: ID
+  id: ID
 }
 
 type Query {

@@ -31,7 +31,7 @@ type Raffle {
 }
 
 type Prize {
-  ID: ID! @id
+  id: ID! @id
   prizeNumber: Int!
   prize: String!
   description: String
